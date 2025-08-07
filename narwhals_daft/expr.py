@@ -2,16 +2,14 @@ from __future__ import annotations
 
 import operator
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Callable, Literal, cast
+from typing import TYPE_CHECKING, Any, Callable, cast
 
-from daft import Window, coalesce, col, lit
-from daft.functions import row_number
+from daft import coalesce, col, lit
 
 from narwhals._compliant import LazyExpr
 from narwhals._compliant.window import WindowInputs
 from narwhals_daft.utils import narwhals_to_native_dtype
 from narwhals._expression_parsing import (
-    ExprKind,
     combine_alias_output_names,
     combine_evaluate_output_names,
 )
@@ -35,9 +33,6 @@ if TYPE_CHECKING:
     from narwhals._utils import Version, _LimitedContext
     from narwhals.dtypes import DType
 
-    DaftWindowFunction = WindowFunction[DaftLazyFrame, Expression]
-    DaftWindowInputs = WindowInputs[Expression]
-
 
 class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     _implementation = Implementation.UNKNOWN
@@ -58,14 +53,6 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
 
     def __call__(self, df: DaftLazyFrame) -> Sequence[Expression]:
         return self._call(df)
-
-    def broadcast(self, kind: Literal[ExprKind.AGGREGATION, ExprKind.LITERAL]) -> Self:
-        if kind is ExprKind.LITERAL:
-            return self
-        return self.over([lit(1)], [])
-
-    def partition_by(self, *cols: Expression | str) -> Window:
-        return Window().partition_by(*cols or [lit(1)])
 
     def __narwhals_expr__(self) -> None: ...
 
@@ -325,14 +312,32 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     def _is_expr(cls, obj: Self | Any) -> TypeIs[Self]:
         return hasattr(obj, "__narwhals_expr__")
 
+    cum_count = not_implemented()
+    cum_max = not_implemented()
+    cum_min = not_implemented()
+    cum_prod = not_implemented()
+    cum_sum = not_implemented()
+    diff = not_implemented()
     drop_nulls = not_implemented()
-    rank = not_implemented()  # https://github.com/Eventual-Inc/Daft/issues/4290
-    median = not_implemented()  # https://github.com/Eventual-Inc/Daft/issues/3491
-    unique = not_implemented()
+    ewm_mean = not_implemented()
+    exp = not_implemented()
+    is_first_distinct = not_implemented()
+    is_last_distinct = not_implemented()
     is_unique = not_implemented()
     kurtosis = not_implemented()
-    exp = not_implemented()
+    rank = not_implemented() 
+    map_batches = not_implemented()
+    median = not_implemented()
+    mode = not_implemented()
+    over = not_implemented()
+    quantile = not_implemented()
+    replace_strict = not_implemented()
+    rolling_max = not_implemented()
+    rolling_mean = not_implemented()
+    rolling_min = not_implemented()
+    rolling_sum = not_implemented()
+    rolling_std = not_implemented()
+    rolling_var = not_implemented()
+    shift = not_implemented()
     sqrt = not_implemented()
-    cum_prod = not_implemented()
-    rolling_std = not_implemented()  # https://github.com/Eventual-Inc/Daft/issues/4464
-    rolling_var = not_implemented()  # https://github.com/Eventual-Inc/Daft/issues/4705
+    unique = not_implemented()

@@ -5,3 +5,19 @@ build-backend = "hatchling.build"
 [project]
 name = "narwhals_daft"
 version = "0.1.0"
+
+[tool.pyright]
+pythonPlatform = "All"
+reportMissingTypeArgument = "error"
+reportMissingImports = "none"
+reportMissingModuleSource = "none"
+reportPrivateImportUsage = "none"
+reportPrivateUsage = "none"
+reportUnusedExpression = "none"
+typeCheckingMode = "basic"
+include = ["narwhals_daft", "tests"]
+ignore = [
+  "../.venv/",
+  "../../../**/Lib",      # stdlib
+  "../../../**/typeshed*" # typeshed-fallback
+]

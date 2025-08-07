@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Literal, cast
 
 import daft
+from daft import Expression
 import daft.exceptions
 import daft.functions
 
@@ -85,6 +86,11 @@ class DaftLazyFrame(
 
     def _iter_columns(self) -> Iterator[daft.Expression]:
         return iter(self._native_frame.columns)
+    
+    def _evaluate_expr(self, expr: DaftExpr) -> Expression:
+        result: Sequence[Expression] = expr(self)
+        assert len(result) == 1  # debug assertion  # noqa: S101
+        return result[0]
 
     @property
     def columns(self) -> list[str]:
@@ -195,13 +201,6 @@ class DaftLazyFrame(
 
     def head(self, n: int) -> Self:
         return self._with_native(self._native_frame.limit(n))
-
-    def group_by(
-        self, keys: Sequence[str] | Sequence[DaftExpr], *, drop_null_keys: bool
-    ) -> DaftGroupBy:
-        from narwhals_daft.group_by import DaftGroupBy
-
-        return DaftGroupBy(self, keys, drop_null_keys=drop_null_keys)
 
     def sort(self, *by: str, descending: bool | Sequence[bool], nulls_last: bool) -> Self:
         return self._with_native(
@@ -333,6 +332,7 @@ class DaftLazyFrame(
     gather_every = not_implemented.deprecated(
         "`LazyFrame.gather_every` is deprecated and will be removed in a future version."
     )
+    group_by = not_implemented()
     join_asof = not_implemented()
     tail = not_implemented.deprecated(
         "`LazyFrame.tail` is deprecated and will be removed in a future version."
