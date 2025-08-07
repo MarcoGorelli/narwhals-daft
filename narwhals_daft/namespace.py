@@ -11,7 +11,6 @@ from daft import Expression
 from narwhals._compliant.namespace import LazyNamespace
 from narwhals_daft.dataframe import DaftLazyFrame
 from narwhals_daft.expr import DaftExpr
-from narwhals_daft.selectors import DaftSelectorNamespace
 from narwhals_daft.utils import lit, narwhals_to_native_dtype
 from narwhals._utils import Implementation, not_implemented
 
