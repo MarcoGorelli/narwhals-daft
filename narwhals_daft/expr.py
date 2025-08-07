@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
     from daft import Expression
-    from typing_extensions import Self
+    from typing_extensions import Self, TypeIs
 
     from narwhals._compliant.typing import (
         AliasNames,
@@ -120,18 +120,9 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
             cols = (col for _expr in exprs for col in _expr(df))
             return [func(cols)]
 
-        def window_function(
-            df: DaftLazyFrame, window_inputs: DaftWindowInputs
-        ) -> list[Expression]:
-            cols = (
-                col for _expr in exprs for col in _expr.window_function(df, window_inputs)
-            )
-            return [func(cols)]
-
         context = exprs[0]
         return cls(
             call=call,
-            window_function=window_function,
             evaluate_output_names=combine_evaluate_output_names(*exprs),
             alias_output_names=combine_alias_output_names(*exprs),
             version=context._version,
@@ -168,7 +159,6 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     ) -> Self:
         return self.__class__(
             self._callable_to_eval_series(call, **expressifiable_args),
-            self._push_down_window_function(call, **expressifiable_args),
             evaluate_output_names=self._evaluate_output_names,
             alias_output_names=self._alias_output_names,
             version=self._version,
@@ -177,7 +167,6 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     def _with_binary(self, op: Callable[..., Expression], other: Self | Any) -> Self:
         return self.__class__(
             self._callable_to_eval_series(op, other=other),
-            self._push_down_window_function(op, other=other),
             evaluate_output_names=self._evaluate_output_names,
             alias_output_names=self._alias_output_names,
             version=self._version,
@@ -186,7 +175,6 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     def _with_alias_output_names(self, func: AliasNames | None, /) -> Self:
         return type(self)(
             self._call,
-            self._window_function,
             evaluate_output_names=self._evaluate_output_names,
             alias_output_names=func,
             version=self._version,
@@ -336,23 +324,6 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     @classmethod
     def _is_expr(cls, obj: Self | Any) -> TypeIs[Self]:
         return hasattr(obj, "__narwhals_expr__")
-
-    @property
-    def str(self) -> DaftExprStringNamespace:
-        return DaftExprStringNamespace(self)
-
-    @property
-    def dt(self) -> DaftExprDateTimeNamespace:
-        return DaftExprDateTimeNamespace(self)
-
-    @property
-    def list(self) -> Any:
-        msg = "todo"
-        raise NotImplementedError(msg)
-
-    @property
-    def struct(self) -> DaftExprStructNamespace:
-        return DaftExprStructNamespace(self)
 
     drop_nulls = not_implemented()
     rank = not_implemented()  # https://github.com/Eventual-Inc/Daft/issues/4290
