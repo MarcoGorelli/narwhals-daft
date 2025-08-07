@@ -1,0 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "narwhals_daft"
+version = "0.1.0"
