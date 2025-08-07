@@ -338,3 +338,4 @@ class DaftLazyFrame(
         "`LazyFrame.tail` is deprecated and will be removed in a future version."
     )
     explode = not_implemented()
+    sink_parquet = not_implemented()
