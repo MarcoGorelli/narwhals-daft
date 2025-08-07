@@ -312,6 +312,9 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         invert = cast("Callable[..., Expression]", operator.invert)
         return self._with_elementwise(invert)
 
+    def __mul__(self, other: Self) -> Self:
+        return self._with_binary(lambda expr, other: (expr * other), other)
+
     def __floordiv__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr / other).floor(), other)
 
@@ -581,6 +584,10 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
 
     def skew(self) -> Self:
         return self._with_callable(lambda expr: expr.skew())
+    
+    @classmethod
+    def _is_expr(cls, obj: Self | Any) -> TypeIs[Self]:
+        return hasattr(obj, "__narwhals_expr__")
 
     @property
     def str(self) -> DaftExprStringNamespace:
