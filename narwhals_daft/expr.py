@@ -164,10 +164,22 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
             alias_output_names=func,
             version=self._version,
         )
+    
+    def __and__(self, other):
+        return ...
+    
+    def __or__(self, other):
+        return ...
 
     def __invert__(self) -> Self:
         invert = cast("Callable[..., Expression]", operator.invert)
         return self._with_elementwise(invert)
+    
+    def __add__(self, other):
+        return ...
+    
+    def __sub__(self, other):
+        return ...
 
     def __mul__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr * other), other)
