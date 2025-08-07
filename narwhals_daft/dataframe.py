@@ -27,7 +27,6 @@ if TYPE_CHECKING:
 
     from narwhals._compliant.typing import CompliantDataFrameAny
     from narwhals_daft.expr import DaftExpr
-    from narwhals_daft.group_by import DaftGroupBy
     from narwhals_daft.namespace import DaftNamespace
     from narwhals._utils import _LimitedContext
     from narwhals.dataframe import LazyFrame
@@ -68,6 +67,7 @@ class DaftLazyFrame(
 
     def __native_namespace__(self) -> ModuleType:
         import daft
+
         return daft
 
     def __narwhals_namespace__(self) -> DaftNamespace:
@@ -86,7 +86,7 @@ class DaftLazyFrame(
 
     def _iter_columns(self) -> Iterator[daft.Expression]:
         return iter(self._native_frame.columns)
-    
+
     def _evaluate_expr(self, expr: DaftExpr) -> Expression:
         result: Sequence[Expression] = expr(self)
         assert len(result) == 1  # debug assertion  # noqa: S101
@@ -164,7 +164,9 @@ class DaftLazyFrame(
             if "duplicate" in str(e):  # pragma: no cover
                 raise DuplicateError(e) from None
             if "not found" in str(e):
-                msg = f"{e!s}\n\nHint: Did you mean one of these columns: {self.columns}?"
+                msg = (
+                    f"{e!s}\n\nHint: Did you mean one of these columns: {self.columns}?"
+                )
                 raise ColumnNotFoundError(msg) from e
             raise
 
@@ -202,7 +204,9 @@ class DaftLazyFrame(
     def head(self, n: int) -> Self:
         return self._with_native(self._native_frame.limit(n))
 
-    def sort(self, *by: str, descending: bool | Sequence[bool], nulls_last: bool) -> Self:
+    def sort(
+        self, *by: str, descending: bool | Sequence[bool], nulls_last: bool
+    ) -> Self:
         return self._with_native(
             self._native_frame.sort(
                 list(by),
@@ -310,7 +314,10 @@ class DaftLazyFrame(
         on_ = [c for c in self.columns if c not in index_] if on is None else on
         return self._with_native(
             self._native_frame.unpivot(
-                ids=index_, values=on_, variable_name=variable_name, value_name=value_name
+                ids=index_,
+                values=on_,
+                variable_name=variable_name,
+                value_name=value_name,
             )
         )
 

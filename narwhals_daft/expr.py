@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any, Callable, cast
 from daft import coalesce, col, lit
 
 from narwhals._compliant import LazyExpr
-from narwhals._compliant.window import WindowInputs
 from narwhals_daft.utils import narwhals_to_native_dtype
 from narwhals._expression_parsing import (
     combine_alias_output_names,
@@ -25,7 +24,6 @@ if TYPE_CHECKING:
         AliasNames,
         EvalNames,
         EvalSeries,
-        WindowFunction,
     )
     from narwhals_daft.dataframe import DaftLazyFrame
     from narwhals_daft.namespace import DaftNamespace
@@ -178,9 +176,9 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         return self._with_binary(lambda expr, other: (expr / other).floor(), other)
 
     def __rfloordiv__(self, other: Self) -> Self:
-        return self._with_binary(lambda expr, other: (other / expr).floor(), other).alias(
-            "literal"
-        )
+        return self._with_binary(
+            lambda expr, other: (other / expr).floor(), other
+        ).alias("literal")
 
     def all(self) -> Self:
         def f(expr: Expression) -> Expression:
@@ -307,7 +305,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
 
     def skew(self) -> Self:
         return self._with_callable(lambda expr: expr.skew())
-    
+
     @classmethod
     def _is_expr(cls, obj: Self | Any) -> TypeIs[Self]:
         return hasattr(obj, "__narwhals_expr__")
@@ -325,7 +323,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     is_last_distinct = not_implemented()
     is_unique = not_implemented()
     kurtosis = not_implemented()
-    rank = not_implemented() 
+    rank = not_implemented()
     map_batches = not_implemented()
     median = not_implemented()
     mode = not_implemented()

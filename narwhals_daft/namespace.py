@@ -15,7 +15,7 @@ from narwhals_daft.utils import lit, narwhals_to_native_dtype
 from narwhals._utils import Implementation, not_implemented
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Iterable
 
     from narwhals._utils import Version
     from narwhals.dtypes import DType
@@ -27,10 +27,6 @@ class DaftNamespace(LazyNamespace[DaftLazyFrame, DaftExpr, daft.DataFrame]):
 
     def __init__(self, *, version: Version) -> None:
         self._version = version
-
-    @property
-    def selectors(self) -> DaftSelectorNamespace:
-        return DaftSelectorNamespace.from_namespace(self)
 
     @property
     def _expr(self) -> type[DaftExpr]:
@@ -135,3 +131,4 @@ class DaftNamespace(LazyNamespace[DaftLazyFrame, DaftExpr, daft.DataFrame]):
 
     when: not_implemented = not_implemented()
     coalesce: not_implemented = not_implemented()
+    selectors: not_implemented = not_implemented()
