@@ -17,3 +17,6 @@ print(result.collect())
 
 result = df.select("a", nw.col("b") - nw.col("a"))
 print(result.collect())
+
+# `nw.from_native` returns the correct type <class 'narwhals.dataframe.LazyFrame>
+print(type(df))
