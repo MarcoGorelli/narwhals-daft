@@ -6,7 +6,7 @@ from narwhals._compliant import CompliantSelector, LazySelectorNamespace
 from narwhals_daft.expr import DaftExpr
 
 if TYPE_CHECKING:
-    from dataframe.base import Column  
+    from dataframe.base import Column  # TODO @mp fix this!
 
     from narwhals_daft.dataframe import DaftLazyFrame  
-    from narwhals_daft.expr import 
+    from narwhals_daft.expr import # TODO @mp fix this!
