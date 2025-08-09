@@ -11,6 +11,7 @@ result = df.select("a", nw.col("b") * nw.col("a"))
 print(result.collect())
 
 # checking the new operators add & sub are working
+# nice, these break if I comment out their respective functions!
 result = df.select("a", nw.col("b") + nw.col("a"))
 print(result.collect())
 
