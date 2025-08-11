@@ -1,43 +1,35 @@
-name: Ruff & Pyright with UV
+name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
 
 jobs:
-  check:
+  lint-and-type-check:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      # Ensure Python 3.12 is installed (for scripts, checkers, etc.)
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        version: "latest"
 
-      # Install uv via pipx or the official script
-      - name: Install uv
-        run: |
-          # Fastest via pipx; alternatively, use the official install script
-          pipx install uv
+    - name: Set up Python 3.12
+      run: uv python install 3.12
 
-      # Create a virtual environment (optional, but recommended for isolation)
-      - name: Create venv and install dependencies
-        run: |
-          uv venv --python 3.12 .venv
-          source .venv/bin/activate
-          uv pip install ruff
-          npm install -g pyright  # Install Pyright (requires Node.js, see below)
+    - name: Install dependencies
+      run: uv pip install -e .[dev]
 
-      # Run Ruff (lint)
-      - name: Run Ruff
-        run: |
-          source .venv/bin/activate
-          ruff check --output-format=github .
+    - name: Run ruff linting
+      run: uv run ruff check .
 
-      # Ensure Node.js for Pyright
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
+    - name: Run ruff formatting check
+      run: uv run ruff format --check .
 
-      # Run Pyright (type check)
-      - name: Run Pyright
-        run: pyright
+    - name: Run pyright type checking
+      run: uv run pyright

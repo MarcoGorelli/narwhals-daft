@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from narwhals.typing import JoinStrategy
 
 
-class DType(
+class DaftLazyFrame(
     CompliantLazyFrame["DaftExpr", "daft.DataFrame", "LazyFrame[daft.DataFrame]"],
     ValidateBackendVersion,
 ):
