@@ -24,12 +24,15 @@ if TYPE_CHECKING:
         AliasNames,
         EvalNames,
         EvalSeries,
+        WindowFunction,
     )
     from narwhals_daft.dataframe import DaftLazyFrame
     from narwhals_daft.namespace import DaftNamespace
     from narwhals._expression_parsing import ExprMetadata
     from narwhals._utils import Version, _LimitedContext
     from narwhals.dtypes import DType
+    # @mp not sure Expression is right here
+    DaftWindowFunction = WindowFunction[DaftLazyFrame, Expression]
 
 
 class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
@@ -164,26 +167,26 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
             alias_output_names=func,
             version=self._version,
         )
-    
+
     def __and__(self, other: Self) -> Self:
-        return self._with_binary(lambda expr, other: (expr & other),other=other)
-    
+        return self._with_binary(lambda expr, other: (expr & other), other=other)
+
     def __or__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr | other), other=other)
 
     def __invert__(self) -> Self:
         invert = cast("Callable[..., Expression]", operator.invert)
         return self._with_elementwise(invert)
-    
+
     def __add__(self, other) -> Self:
-        return self._with_binary(lambda expr, other: (expr + other),other)
-    
+        return self._with_binary(lambda expr, other: (expr + other), other)
+
     def __sub__(self, other) -> Self:
-        return self._with_binary(lambda expr, other: (expr - other),other)
+        return self._with_binary(lambda expr, other: (expr - other), other)
 
     def __mul__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr * other), other)
-    
+
     def __truediv__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr / other), other)
 
@@ -194,25 +197,25 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         return self._with_binary(
             lambda expr, other: (other / expr).floor(), other
         ).alias("literal")
-    
+
     def __mod__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr % other), other)
-    
+
     def __pow__(self, other: Self) -> Self:
-        return self._with_binary(lambda expr, other: (expr ** other), other)
-    
+        return self._with_binary(lambda expr, other: (expr**other), other)
+
     def __gt__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr > other), other)
-    
+
     def __ge__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr >= other), other)
-    
+
     def __lt__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr < other), other)
-    
+
     def __le__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr <= other), other)
-    
+
     def all(self) -> Self:
         def f(expr: Expression) -> Expression:
             return coalesce(expr.bool_and(), lit(True))  # noqa: FBT003
@@ -372,3 +375,11 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     shift = not_implemented()
     sqrt = not_implemented()
     unique = not_implemented()
+    broadcast = not_implemented()
+
+    # namespaces
+    str = not_implemented() # pyright: ignore[reportAssignmentType]
+    dt = not_implemented()  # pyright: ignore[reportAssignmentType]
+    cat = not_implemented()  # pyright: ignore[reportAssignmentType]
+    list = not_implemented()  # pyright: ignore[reportAssignmentType]
+    struct = not_implemented()  # pyright: ignore[reportAssignmentType]
