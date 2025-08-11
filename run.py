@@ -21,3 +21,5 @@ print(result.collect())
 
 # `nw.from_native` returns the correct type <class 'narwhals.dataframe.LazyFrame>
 print(type(df))
+
+print('testing CI')
