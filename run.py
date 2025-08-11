@@ -9,3 +9,14 @@ df_compliant = DaftLazyFrame(df_native, version=Version.MAIN)
 df = nw.from_native(df_compliant)
 result = df.select("a", nw.col("b") * nw.col("a"))
 print(result.collect())
+
+# checking the new operators add & sub are working
+# nice, these break if I comment out their respective functions!
+result = df.select("a", nw.col("b") + nw.col("a"))
+print(result.collect())
+
+result = df.select("a", nw.col("b") - nw.col("a"))
+print(result.collect())
+
+# `nw.from_native` returns the correct type <class 'narwhals.dataframe.LazyFrame>
+print(type(df))
