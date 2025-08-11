@@ -21,3 +21,8 @@ ignore = [
   "../../../**/Lib",      # stdlib
   "../../../**/typeshed*" # typeshed-fallback
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.8",
+]
