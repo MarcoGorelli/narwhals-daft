@@ -6,7 +6,18 @@ from narwhals._compliant import CompliantSelector, LazySelectorNamespace
 from narwhals_daft.expr import DaftExpr
 
 if TYPE_CHECKING:
-    from dataframe.base import Column  # TODO @mp fix this!
+    # not sure what this should be
+    from sqlframe.base.column import Column  
 
-    from narwhals_daft.dataframe import DaftLazyFrame  
-    from narwhals_daft.expr import # TODO @mp fix this!
+    from narwhals_daft.dataframe import DaftLazyFrame 
+    # check I've created this correctly 
+    from narwhals_daft.expr import DaftWindowFunction
+
+# not sure about Column here!
+class DaftSelectorNamespace(LazySelectorNamespace["DaftLazyFrame", "Column"]):
+    @property
+    def _selector(self) -> type[DaftSelector]:
+        return DaftSelector
+    
+
+class DaftSelector: ...
