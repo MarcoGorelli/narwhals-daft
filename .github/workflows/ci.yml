@@ -1,0 +1,43 @@
+name: Ruff & Pyright with UV
+
+on: [push, pull_request]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Ensure Python 3.12 is installed (for scripts, checkers, etc.)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Install uv via pipx or the official script
+      - name: Install uv
+        run: |
+          # Fastest via pipx; alternatively, use the official install script
+          pipx install uv
+
+      # Create a virtual environment (optional, but recommended for isolation)
+      - name: Create venv and install dependencies
+        run: |
+          uv venv --python 3.12 .venv
+          source .venv/bin/activate
+          uv pip install ruff
+          npm install -g pyright  # Install Pyright (requires Node.js, see below)
+
+      # Run Ruff (lint)
+      - name: Run Ruff
+        run: |
+          source .venv/bin/activate
+          ruff check --output-format=github .
+
+      # Ensure Node.js for Pyright
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # Run Pyright (type check)
+      - name: Run Pyright
+        run: pyright
