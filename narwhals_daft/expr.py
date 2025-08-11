@@ -375,3 +375,11 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     shift = not_implemented()
     sqrt = not_implemented()
     unique = not_implemented()
+    broadcast = not_implemented()
+
+    # namespaces
+    str = not_implemented() # pyright: ignore[reportAssignmentType]
+    dt = not_implemented()  # pyright: ignore[reportAssignmentType]
+    cat = not_implemented()  # pyright: ignore[reportAssignmentType]
+    list = not_implemented()  # pyright: ignore[reportAssignmentType]
+    struct = not_implemented()  # pyright: ignore[reportAssignmentType]
