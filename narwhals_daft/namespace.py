@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from narwhals.typing import ConcatMethod
 
 
-class DaftNamespace(LazyNamespace[DaftLazyFrame, DaftExpr, daft.DataFrame]):
+class DType(LazyNamespace[DaftLazyFrame, DaftExpr, daft.DataFrame]):
     _implementation: Implementation = Implementation.UNKNOWN
 
     def __init__(self, *, version: Version) -> None:
