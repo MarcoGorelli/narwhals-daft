@@ -25,4 +25,5 @@ ignore = [
 [dependency-groups]
 dev = [
     "ruff>=0.12.8",
+    "pyright>=1.1.403",
 ]
