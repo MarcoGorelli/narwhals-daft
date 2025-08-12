@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     DaftWindowFunction = WindowFunction[DaftLazyFrame, Expression]
 
 
-class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
+class DType(LazyExpr["DaftLazyFrame", "Expression"]):
     _implementation = Implementation.UNKNOWN
 
     def __init__(
