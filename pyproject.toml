@@ -6,6 +6,9 @@ build-backend = "hatchling.build"
 name = "narwhals_daft"
 version = "0.1.0"
 
+[project.entry-points.'narwhals.plugins']
+narwhals-daft = 'narwhals_daft'
+
 [tool.pyright]
 pythonPlatform = "All"
 reportMissingTypeArgument = "error"
@@ -26,3 +29,5 @@ ignore = [
 dev = [
     "ruff>=0.12.8",
 ]
+
+
