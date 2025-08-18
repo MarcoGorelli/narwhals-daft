@@ -1,5 +1,4 @@
 import narwhals as nw
-from narwhals.utils import Version
 import daft
 from narwhals_daft import from_native
 
