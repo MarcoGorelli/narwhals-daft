@@ -3,9 +3,7 @@ import daft
 from narwhals_daft import from_native
 
 df_native = daft.from_pydict({"a": [1, 2, 3], "b": [4, 5, 6]})
-#df_compliant = DaftLazyFrame(df_native, version=Version.MAIN)
 
-# TODO we should't have to do the step above! how can we plug into nw without that extra step? 
 df_compliant = from_native(df_native, eager_only=False, series_only=False)
 df = df_compliant.to_narwhals()
 
