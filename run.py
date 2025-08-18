@@ -1,13 +1,12 @@
 import narwhals as nw
-from narwhals.utils import Version
 import daft
-from narwhals_daft.dataframe import DaftLazyFrame
+from narwhals_daft import from_native
 
 df_native = daft.from_pydict({"a": [1, 2, 3], "b": [4, 5, 6]})
-df_compliant = DaftLazyFrame(df_native, version=Version.MAIN)
 
-# TODO we should't have to do the step above! how can we plug into nw without that extra step? 
-df = nw.from_native(df_compliant)
+df_compliant = from_native(df_native, eager_only=False, series_only=False)
+df = df_compliant.to_narwhals()
+
 result = df.select("a", nw.col("b") * nw.col("a"))
 print(result.collect())
 
@@ -19,5 +18,4 @@ print(result.collect())
 result = df.select("a", nw.col("b") - nw.col("a"))
 print(result.collect())
 
-# `nw.from_native` returns the correct type <class 'narwhals.dataframe.LazyFrame>
 print(type(df))
