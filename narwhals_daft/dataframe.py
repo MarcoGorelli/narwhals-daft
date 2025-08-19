@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 
 
 class DaftLazyFrame(
-    CompliantLazyFrame["DaftExpr", "daft.DataFrame", "LazyFrame[daft.DataFrame]"],
+    DType["DaftExpr", "daft.DataFrame", "LazyFrame[daft.DataFrame]"],
     ValidateBackendVersion,
 ):
     _implementation = Implementation.UNKNOWN
