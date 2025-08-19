@@ -7,10 +7,10 @@
 
 # if TYPE_CHECKING:
 #     # not sure what this should be
-#     from sqlframe.base.column import Column  
+#     from sqlframe.base.column import Column
 
-#     from narwhals_daft.dataframe import DaftLazyFrame 
-#     # check I've created this correctly 
+#     from narwhals_daft.dataframe import DaftLazyFrame
+#     # check I've created this correctly
 #     from narwhals_daft.expr import DaftWindowFunction
 
 # # not sure about Column here!
@@ -18,6 +18,6 @@
 #     @property
 #     def _selector(self) -> type[DaftSelector]:
 #         return DaftSelector
-    
+
 
 # class DaftSelector: ...

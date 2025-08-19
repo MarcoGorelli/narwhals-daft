@@ -16,7 +16,7 @@ uv pip install -U daft narwhals -e .
 
 ## Usage
 
-Example usage is in `run.py`: 
+Example usage is in `run.py`:
 
 ```python
 python run.py
