@@ -9,6 +9,14 @@ version = "0.1.0"
 [project.entry-points.'narwhals.plugins']
 narwhals-daft = 'narwhals_daft'
 
+[dependency-groups]
+dev = [
+    "pre-commit",
+    "ruff>=0.12.8",
+    "pyright>=1.1.403",
+    {include-group = "typing"},
+]
+
 typing = [
   "duckdb==1.3.0",
   "hypothesis",
@@ -38,11 +46,4 @@ ignore = [
   "../.venv/",
   "../../../**/Lib",      # stdlib
   "../../../**/typeshed*" # typeshed-fallback
-]
-
-dev = [
-    "pre-commit",
-    "ruff>=0.12.8",
-    "pyright>=1.1.403",
-    {include-group = "typing"},
 ]
