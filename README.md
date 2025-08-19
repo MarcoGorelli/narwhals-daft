@@ -30,8 +30,8 @@ In no particular order:
   get some errors that methods like `__or__` and others are not implemented. So, first, implement
   those, see `__mul__` for an example. DONE
 - Usability: in `run.py`, we shoud aim to let users pass a `daft.DataFrame` directly to `nw.from_native`.
-  This will require some changes in Narwhals. 
-- Check that `nw.from_native` returns the correct type (`LazyFrame` or `DataFrame`). 
+  This will require some changes in Narwhals. DONE
+- Check that `nw.from_native` returns the correct type (`LazyFrame` or `DataFrame`). DONE
 - Check whether `Implementation.UNKNOWN` is alright or if it could/should be improved.
 - Is `_evaluate_expr` needed? Can it be fixed in Narwhals first?
 - Implement `group_by`, `selectors`, and other missing parts. INPROG
