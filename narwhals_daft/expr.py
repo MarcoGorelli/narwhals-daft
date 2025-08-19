@@ -183,7 +183,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
 
     def __sub__(self, other) -> Self:
         return self._with_binary(lambda expr, other: (expr - other), other)
-    
+
     def __rsub__(self, other) -> Self:
         return self._with_binary(lambda expr, other: (other - expr), other)
 
@@ -192,7 +192,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
 
     def __truediv__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr / other), other)
-    
+
     def __rtruediv__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (other / expr), other)
 
@@ -208,13 +208,13 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
 
     def __mod__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr % other), other)
-    
+
     def __rmod__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (other % expr), other)
 
     def __pow__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr**other), other)
-    
+
     def __rpow__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (other** expr), other)
 
@@ -229,13 +229,13 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
 
     def __le__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr <= other), other)
-    
+
     def __eq__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr == other), other)
-    
+
     def __ne__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr != other), other)
-    
+
 
     def all(self) -> Self:
         def f(expr: Expression) -> Expression:
