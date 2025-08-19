@@ -25,10 +25,10 @@ ignore = [
   "../../../**/typeshed*" # typeshed-fallback
 ]
 
-[dependency-groups]
 dev = [
+    "pre-commit",
     "ruff>=0.12.8",
     "pyright>=1.1.403",
+    {include-group = "typing"},
 ]
-
 
