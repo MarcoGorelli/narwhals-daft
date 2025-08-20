@@ -10,6 +10,7 @@ version = "0.1.0"
 narwhals-daft = 'narwhals_daft'
 
 [dependency-groups]
+core = ["daft>=0.5.18"]
 dev = [
     "pre-commit",
     "ruff>=0.12.8",
