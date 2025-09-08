@@ -374,6 +374,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     cum_sum = not_implemented()
     diff = not_implemented()
     drop_nulls = not_implemented()
+    fill_nan =not_implemented()
     ewm_mean = not_implemented()
     exp = not_implemented()
     is_first_distinct = not_implemented()
