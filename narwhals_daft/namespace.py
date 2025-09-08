@@ -29,8 +29,8 @@ class DaftNamespace(LazyNamespace[DaftLazyFrame, DaftExpr, daft.DataFrame]):
     def __init__(self, *, version: Version) -> None:
         self._version = version
 
-    def from_native(self, native_object: daft.DataFrame, version: Version) -> DaftLazyFrame:
-        return DaftLazyFrame(native_object, version=version)
+    def from_native(self, native_object: daft.DataFrame) -> DaftLazyFrame:
+        return DaftLazyFrame(native_object, version=self._version)
 
     @property
     def _expr(self) -> type[DaftExpr]:
