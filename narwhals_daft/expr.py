@@ -398,6 +398,8 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     sqrt = not_implemented()
     unique = not_implemented()
     broadcast = not_implemented()
+    first = not_implemented()
+    last = not_implemented()
 
     # namespaces
     str = not_implemented() # pyright: ignore[reportAssignmentType]
