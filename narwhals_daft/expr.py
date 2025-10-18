@@ -400,6 +400,8 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     broadcast = not_implemented()
     first = not_implemented()
     last = not_implemented()
+    floor = not_implemented()
+    ceil = not_implemented()
 
     # namespaces
     str = not_implemented() # pyright: ignore[reportAssignmentType]

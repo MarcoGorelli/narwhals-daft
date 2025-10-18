@@ -31,4 +31,3 @@ In no particular order:
 - Check whether `Implementation.UNKNOWN` is alright or if it could/should be improved.
 - Implement `group_by`, `selectors`, and other missing parts. INPROG
 - See if there's an easy way to re-use the Narwhals test suite.
-
