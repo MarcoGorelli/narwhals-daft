@@ -28,7 +28,6 @@ if TYPE_CHECKING:
     )
     from narwhals_daft.dataframe import DaftLazyFrame
     from narwhals_daft.namespace import DaftNamespace
-    from narwhals._expression_parsing import ExprMetadata
     from narwhals._utils import Version, _LimitedContext
     from narwhals.dtypes import DType
     # @mp not sure Expression is right here
