@@ -50,7 +50,6 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         self._evaluate_output_names = evaluate_output_names
         self._alias_output_names = alias_output_names
         self._version = version
-        self._metadata: ExprMetadata | None = None
 
     def __call__(self, df: DaftLazyFrame) -> Sequence[Expression]:
         return self._call(df)
