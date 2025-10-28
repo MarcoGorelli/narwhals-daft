@@ -13,8 +13,35 @@ uv venv
 . .venv/bin/activate
 uv pip install -U daft -e .
 ```
+If you want to do development work on narwhals-daft, also install the plugin itself:
 
-Then, install Narwhals from this branch: https://github.com/ym-pett/narwhals/tree/create_fromnative_daft, which we plan to merge into Narwhals shortly.
+`uv pip install -e . --group dev`
+
+Git clone Narwhals and install it locally:
+
+```
+git clone git@github.com:narwhals-dev/narwhals.git
+uv pip install -U -e narwhals --group tests
+```
+
+You can verify the install has worked with `python run.py`, you should get the required outputs.
+
+If you want to use the narwhals test suite:
+
+```
+pytest narwhals/tests/expr_and_series/abs_test.py -v -p pytest_constructor_override --use-external-constructor
+```
+
+The first time you run it, it may complain about `pandas` not being installed. After installation of the package and re-running the above command you currently should get:
+
+```console
+collected 2 items
+
+narwhals/tests/expr_and_series/abs_test.py::test_abs[daft] PASSED                                                                   [ 50%]
+narwhals/tests/expr_and_series/abs_test.py::test_abs_series[NOTSET] SKIPPED (got empty parameter set for (constructor_eager))       [100%]
+
+====================================================== 1 passed, 1 skipped in 0.52s =======================================================
+```
 
 ## Usage
 
