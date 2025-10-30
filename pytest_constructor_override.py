@@ -2,6 +2,7 @@ import pytest
 import daft
 
 
+
 @pytest.hookimpl(tryfirst=True)
 def pytest_generate_tests(metafunc):
     if "constructor" in metafunc.fixturenames:
@@ -11,3 +12,10 @@ def pytest_generate_tests(metafunc):
 
 def daft_constructor(data):
     return daft.from_pydict(data)
+
+try:
+    import pandas
+except ImportError:
+    import subprocess
+    subprocess.check_call(["uv", "pip", "install", "pandas"])
+    import pandas
