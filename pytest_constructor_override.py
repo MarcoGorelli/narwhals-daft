@@ -14,7 +14,7 @@ def daft_constructor(data):
     return daft.from_pydict(data)
 
 try:
-    import pandas
+    import pandas # noqa: F401
 except ImportError:
     import subprocess
     subprocess.check_call(["uv", "pip", "install", "pandas"])
