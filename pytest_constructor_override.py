@@ -18,4 +18,3 @@ try:
 except ImportError:
     import subprocess
     subprocess.check_call(["uv", "pip", "install", "pandas"])
-    import pandas
