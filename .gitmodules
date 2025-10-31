@@ -1,0 +1,3 @@
+[submodule "narwhals"]
+	path = narwhals
+	url = https://github.com/narwhals-dev/narwhals
