@@ -6,7 +6,13 @@ Work-in-progress.
 
 ## Installation
 
-Clone the repository, make a virtual environment, install Narwhals, Daft, and `narwhals_daft`:
+Clone this repository with the `--recursive` flag. This installs Narwhals as a git
+submodule.
+
+`git clone --recursive <project url>`
+
+Make a virtual environment, install Daft,
+Narwhals, and `narwhals_daft`:
 
 ```console
 uv venv
@@ -15,16 +21,16 @@ uv pip install -U daft -e .
 ```
 If you want to do development work on narwhals-daft, also install the plugin itself:
 
-`uv pip install -e . --group dev`
+`uv pip install -e . --group tests`
 
-Git clone Narwhals and install it locally:
+To install `narwhals`:
 
+```console
+uv pip install -U -e narwhals --group dev
 ```
-git clone git@github.com:narwhals-dev/narwhals.git
-uv pip install -U -e narwhals --group tests
-```
 
-You can verify the install has worked with `python run.py`, you should get the required outputs.
+You can verify the install has worked with `python run.py`, you should get Narwhals
+LazyFrames as outputs.
 
 If you want to use the narwhals test suite:
 
@@ -32,7 +38,7 @@ If you want to use the narwhals test suite:
 pytest narwhals/tests/expr_and_series/abs_test.py -v -p pytest_constructor_override --use-external-constructor
 ```
 
-The first time you run it, it may complain about `pandas` not being installed. After installation of the package and re-running the above command you currently should get:
+You currently should get:
 
 ```console
 collected 2 items
@@ -47,7 +53,7 @@ narwhals/tests/expr_and_series/abs_test.py::test_abs_series[NOTSET] SKIPPED (got
 
 Example usage is in `run.py`:
 
-```python
+```console
 python run.py
 ```
 
