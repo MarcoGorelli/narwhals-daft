@@ -9,7 +9,9 @@ Work-in-progress.
 Clone this repository with the `--recursive` flag. This installs Narwhals as a git
 submodule.
 
-`git clone --recursive <project url>`
+```console
+git clone --recursive <project url>
+```
 
 Make a virtual environment, install Daft,
 Narwhals, and `narwhals_daft`:
@@ -19,9 +21,12 @@ uv venv
 . .venv/bin/activate
 uv pip install -U daft -e .
 ```
-If you want to do development work on narwhals-daft, also install the plugin itself:
+If you want to do development work on narwhals-daft, install the plugin itself
+with relevant flags:
 
-`uv pip install -e . --group tests`
+```console
+uv pip install -e . --group tests
+```
 
 To install `narwhals`:
 
