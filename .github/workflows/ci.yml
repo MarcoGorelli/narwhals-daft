@@ -30,8 +30,6 @@ jobs:
       - name: install-reqs
         run: |
             uv pip install -e . --group tests --system
-            # Temporary, make runnable without pandas/numpy
-            uv pip install pandas numpy --system
             git submodule update --init --recursive
             uv pip install -e narwhals --system
       - name: show-deps

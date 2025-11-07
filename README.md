@@ -41,3 +41,17 @@ To run type-checking:
 ```console
 pyright narwhals_daft
 ```
+
+## Updating the Narwhals submodule
+
+Run
+
+```console
+cd narwhals
+git pull origin main
+cd ..
+git add narwhals
+git commit -a -m 'update narwhals <from SHA>...<to SHA>'
+```
+
+and open a pull request.
