@@ -56,7 +56,7 @@ jobs:
           cache-dependency-glob: "pyproject.toml"
       - name: install-reqs
         run: |
-            uv pip install -e . --group tests --system
+            uv pip install -e . --group typing --system
             git submodule update --init --recursive
             uv pip install -e narwhals --system
       - name: show-deps
