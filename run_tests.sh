@@ -27,6 +27,7 @@ test_categorical or  \
 test_ceil_expr or  \
 test_clip_expr or  \
 test_clip_expr_expressified or  \
+test_coalesce_multi_output or \
 test_coalesce_numeric or  \
 test_coalesce_strings or  \
 test_collect_empty or  \
