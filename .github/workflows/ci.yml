@@ -1,42 +1,59 @@
-name: Ruff & Pyright with UV
+name: PyTest
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+env:
+  PY_COLORS: 1
+  PYTEST_ADDOPTS: "--numprocesses=logical"
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
+  pytest:
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-
-      # Ensure Python 3.12 is installed (for scripts, checkers, etc.)
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
-
-      # Install uv via pipx or the official script
+          python-version: ${{ matrix.python-version }}
       - name: Install uv
-        run: |
-          pipx install uv
-
-      # Create a virtual environment (optional, but recommended for isolation)
-      - name: Create venv and install dependencies
-        run: |
-          uv venv --python 3.12 .venv
-          source .venv/bin/activate
-          uv pip install ruff
-          npm install -g pyright
-
-      # Run Ruff (lint)
-      - name: Run Ruff
-        run: |
-          source .venv/bin/activate
-          ruff check --output-format=github .
-
-      # Ensure Node.js for Pyright
-      - uses: actions/setup-node@v4
+        uses: astral-sh/setup-uv@v7
         with:
-          node-version: "20"
+          enable-cache: "true"
+          cache-suffix: pytest-${{ matrix.python-version }}
+          cache-dependency-glob: "pyproject.toml"
+      - name: install-reqs
+        run: uv pip install -e . --group tests --system
+      - name: show-deps
+        run: uv pip freeze
+      - name: Run pytest
+        run: . run_tests/sh
 
-      # Run Pyright (type check)
-      - name: Run Pyright
-        run: pyright
+  typing:
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: "true"
+          cache-suffix: pyright-${{ matrix.python-version }}
+          cache-dependency-glob: "pyproject.toml"
+      - name: install-reqs
+        run: uv pip install -e . typing --system
+      - name: show-deps
+        run: uv pip freeze
+      - name: Run pytest
+        run: . run_tests/sh

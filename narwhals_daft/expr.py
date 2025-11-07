@@ -264,25 +264,10 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         return self._with_callable(lambda _input: _input.mean())
 
     def clip(
-        self, lower_bound: Any | None = None, upper_bound: Any | None = None
+        self, lower_bound: DaftExpr, upper_bound: DaftExpr
     ) -> Self:
-        def _clip_lower(_input: Expression, lower_bound: Expression) -> Expression:
-            return _input.clip(lower_bound)
-
-        def _clip_upper(_input: Expression, upper_bound: Expression) -> Expression:
-            return _input.clip(max=upper_bound)
-
-        def _clip_both(
-            _input: Expression, lower_bound: Expression, upper_bound: Expression
-        ) -> Expression:
-            return _input.clip(lower_bound, upper_bound)
-
-        if lower_bound is None:
-            return self._with_elementwise(_clip_upper, upper_bound=upper_bound)
-        if upper_bound is None:
-            return self._with_elementwise(_clip_lower, lower_bound=lower_bound)
         return self._with_elementwise(
-            _clip_both, lower_bound=lower_bound, upper_bound=upper_bound
+            lambda expr: expr.clip(lower_bound, upper_bound), lower_bound=lower_bound, upper_bound=upper_bound
         )
 
     def sum(self) -> Self:
@@ -365,6 +350,8 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     def _is_expr(cls, obj: Self | Any) -> TypeIs[Self]:
         return hasattr(obj, "__narwhals_expr__")
 
+    clip_lower = not_implemented()
+    clip_upper = not_implemented()
     cum_count = not_implemented()
     cum_max = not_implemented()
     cum_min = not_implemented()
