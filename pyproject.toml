@@ -58,3 +58,8 @@ ignore = [
   "../../../**/Lib",      # stdlib
   "../../../**/typeshed*" # typeshed-fallback
 ]
+
+[tool.pytest.ini_options]
+env = [
+  'PYTHONPATH=narwhals'
+]
