@@ -1,4 +1,4 @@
-name: PyTest
+name: CI
 
 on:
   pull_request:
@@ -28,7 +28,10 @@ jobs:
           cache-suffix: pytest-${{ matrix.python-version }}
           cache-dependency-glob: "pyproject.toml"
       - name: install-reqs
-        run: uv pip install -e . --group tests --system
+        run: |
+            uv pip install -e . --group tests --system
+            git submodule update --init --recursive
+            uv pip install -e narwhals --system
       - name: show-deps
         run: uv pip freeze
       - name: Run pytest
@@ -52,8 +55,11 @@ jobs:
           cache-suffix: pyright-${{ matrix.python-version }}
           cache-dependency-glob: "pyproject.toml"
       - name: install-reqs
-        run: uv pip install -e . typing --system
+        run: |
+            uv pip install -e . --group tests --system
+            git submodule update --init --recursive
+            uv pip install -e narwhals --system
       - name: show-deps
         run: uv pip freeze
-      - name: Run pytest
-        run: . run_tests/sh
+      - name: Run pyright
+        run: pyright narwhals_daft
