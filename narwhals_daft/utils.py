@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable, Sequence
 
 import daft
 import daft.datatype
@@ -144,3 +144,13 @@ def narwhals_to_native_dtype(  # noqa: PLR0912,C901
         )
     msg = f"Unknown dtype: {dtype}"  # pragma: no cover
     raise AssertionError(msg)
+
+def extend_bool(
+    value: bool | Iterable[bool],  # noqa: FBT001
+    n_match: int,
+) -> Sequence[bool]:
+    """Ensure the given bool or sequence of bools is the correct length.
+
+    Stolen from https://github.com/pola-rs/polars/blob/b8bfb07a4a37a8d449d6d1841e345817431142df/py-polars/polars/_utils/various.py#L580-L594
+    """
+    return (value,) * n_match if isinstance(value, bool) else tuple(value)

@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import operator
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Callable, cast
+from typing import TYPE_CHECKING, Any, Callable, cast, Iterator
 
-from daft import coalesce, col, lit
+from daft import coalesce, col, lit, Window
 
 from narwhals._compliant import LazyExpr
-from narwhals_daft.utils import narwhals_to_native_dtype
+from narwhals._compliant.window import WindowInputs  # todo: make public?
+from narwhals_daft.utils import narwhals_to_native_dtype, extend_bool
 from narwhals._expression_parsing import (
     combine_alias_output_names,
     combine_evaluate_output_names,
@@ -33,6 +34,8 @@ if TYPE_CHECKING:
     # @mp not sure Expression is right here
     DaftWindowFunction = WindowFunction[DaftLazyFrame, Expression]
 
+DESCENDING_TO_ORDER = {True: "desc", False: "asc"}
+NULLS_LAST_TO_NULLS_POS = {True: "nulls last", False: "nulls first"}
 
 class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     _implementation = Implementation.UNKNOWN
@@ -40,6 +43,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     def __init__(
         self,
         call: Callable[[DaftLazyFrame], Sequence[Expression]],
+        window_function: DaftWindowFunction | None = None,
         *,
         evaluate_output_names: EvalNames[DaftLazyFrame],
         alias_output_names: AliasNames | None,
@@ -49,6 +53,52 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         self._evaluate_output_names = evaluate_output_names
         self._alias_output_names = alias_output_names
         self._version = version
+        self._window_function: DaftWindowFunction | None = window_function
+
+    def _partition_by(self, *cols: Expression | str) -> Window:
+        """Wraps `Window().partitionBy`, with default and `WindowInputs` handling."""
+        return Window().partition_by(*cols)
+
+    def _window_expression(
+        self,
+        expr: Expression,
+        partition_by: Sequence[str | Expression] = (),
+        order_by: Sequence[str | Expression] = (),
+        rows_start: int | None = None,
+        rows_end: int | None = None,
+        *,
+        descending: list[bool] | None = None,
+        nulls_first: list[bool] | None = None,
+    ) -> Expression:
+        window = self._partition_by(*partition_by)
+        if order_by:
+            window = window.order_by(
+                *order_by,
+                desc=descending or [False]*len(order_by),
+                nulls_first=nulls_first or [True]*len(order_by)
+            )
+        if rows_start is not None and rows_end is not None:
+            window = window.rows_between(rows_start, rows_end)
+        elif rows_end is not None:
+            window = window.rows_between(Window.unbounded_preceding, rows_end)
+        elif rows_start is not None:  # pragma: no cover
+            window = window.rows_between(rows_start, Window.unbounded_following)
+        return expr.over(window)
+
+    @property
+    def window_function(self) -> WindowFunction[DaftLazyFrame, Expression]:
+        def default_window_func(
+            df: DaftLazyFrame, inputs: WindowInputs[Expression]
+        ) -> Sequence[Expression]:
+            assert not inputs.order_by  # noqa: S101
+            return [
+                self._window_expression(expr, inputs.partition_by) for expr in self(df)
+            ]
+
+        return self._window_function or default_window_func
+
+    def broadcast(self) -> Self:
+        return self.over([lit(1)], [])
 
     def __call__(self, df: DaftLazyFrame) -> Sequence[Expression]:
         return self._call(df)
@@ -197,7 +247,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     def __floordiv__(self, other: Self) -> Self:
         return self._with_binary(
             lambda expr, other: (expr / other).floor(), other
-            ).alias("literal")
+            )
 
     def __rfloordiv__(self, other: Self) -> Self:
         return self._with_binary(
@@ -233,6 +283,19 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
 
     def __ne__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr != other), other)
+
+    def over(
+        self, partition_by: Sequence[str | Expression], order_by: Sequence[str]
+    ) -> Self:
+        def func(df: DaftLazyFrame) -> Sequence[Expression]:
+            return self.window_function(df, WindowInputs(partition_by, order_by))
+
+        return self.__class__(
+            func,
+            evaluate_output_names=self._evaluate_output_names,
+            alias_output_names=self._alias_output_names,
+            version=self._version,
+        )
 
 
     def all(self) -> Self:
@@ -370,7 +433,6 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     map_batches = not_implemented()
     median = not_implemented()
     mode = not_implemented()
-    over = not_implemented()
     quantile = not_implemented()
     replace_strict = not_implemented()
     rolling_max = not_implemented()
@@ -382,7 +444,6 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     shift = not_implemented()
     sqrt = not_implemented()
     unique = not_implemented()
-    broadcast = not_implemented()
     first = not_implemented()
     last = not_implemented()
     floor = not_implemented()
