@@ -9,7 +9,9 @@ import daft.functions
 from daft import Expression
 
 from narwhals._compliant.namespace import LazyNamespace
-#from narwhals_daft import dataframe
+from narwhals._compliant.window import WindowInputs
+
+# from narwhals_daft import dataframe
 from narwhals_daft.dataframe import DaftLazyFrame
 from narwhals_daft.expr import DaftExpr
 from narwhals_daft.utils import lit, narwhals_to_native_dtype
@@ -46,8 +48,14 @@ class DaftNamespace(LazyNamespace[DaftLazyFrame, DaftExpr, daft.DataFrame]):
                 return [lit(value).cast(narwhals_to_native_dtype(dtype, self._version))]
             return [lit(value)]
 
+        def window_func(
+            df: DaftLazyFrame, _window_inputs: WindowInputs[Expression]
+        ) -> list[Expression]:
+            return func(df)
+
         return DaftExpr(
             func,
+            window_func,
             evaluate_output_names=lambda _df: ["literal"],
             alias_output_names=None,
             version=self._version,

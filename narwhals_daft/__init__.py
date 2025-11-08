@@ -15,8 +15,10 @@ def __narwhals_namespace__(version: Version) -> DaftNamespace:  # noqa: N807
 
     return DaftNamespace(version=version)
 
-def is_native(native_object:object) -> TypeIs[DaftLazyFrame]:
+
+def is_native(native_object: object) -> TypeIs[DaftLazyFrame]:
     import daft
+
     return isinstance(native_object, daft.DataFrame)
 
 
