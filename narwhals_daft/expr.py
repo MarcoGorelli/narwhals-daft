@@ -168,7 +168,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         def func(df: DaftLazyFrame) -> list[Expression]:
             native_series_list = self(df)
             other_native_series = {
-                key: df._evaluate_expr(value) if self._is_expr(value) else lit(value)
+                key: df._evaluate_expr(value)
                 for key, value in expressifiable_args.items()
             }
             return [
@@ -177,6 +177,29 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
             ]
 
         return func
+
+    def _push_down_window_function(
+        self, call: Callable[..., Expression], /, **expressifiable_args: Self
+    ) -> WindowFunction[DaftLazyFrame, Expression]:
+        def window_f(
+            df: DaftLazyFrame, window_inputs: WindowInputs[Expression]
+        ) -> Sequence[Expression]:
+            # If a function `f` is elementwise, and `g` is another function, then
+            # - `f(g) over (window)`
+            # - `f(g over (window))
+            # are equivalent.
+            # Make sure to only use with if `call` is elementwise!
+            native_series_list = self.window_function(df, window_inputs)
+            other_native_series = {
+                key: df._evaluate_window_expr(value, window_inputs)
+                for key, value in expressifiable_args.items()
+            }
+            return [
+                call(native_series, **other_native_series)
+                for native_series in native_series_list
+            ]
+
+        return window_f
 
     def _with_callable(
         self, call: Callable[..., Expression], /, **expressifiable_args: Self | Any
@@ -201,6 +224,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     def _with_binary(self, op: Callable[..., Expression], other: Self | Any) -> Self:
         return self.__class__(
             self._callable_to_eval_series(op, other=other),
+            self._push_down_window_function(op, other=other),
             evaluate_output_names=self._evaluate_output_names,
             alias_output_names=self._alias_output_names,
             version=self._version,

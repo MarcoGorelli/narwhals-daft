@@ -92,6 +92,18 @@ class DaftLazyFrame(
         assert len(result) == 1  # debug assertion  # noqa: S101
         return result[0]
 
+    def _evaluate_window_expr(
+        self,
+        expr: SQLExpr[Self, NativeExprT],
+        /,
+        window_inputs: WindowInputs[NativeExprT],
+    ) -> NativeExprT:
+        result = expr.window_function(self, window_inputs)
+        if len(result) != 1:  # pragma: no cover
+            msg = "multi-output expressions not allowed in this context"
+            raise MultiOutputExpressionError(msg)
+        return result[0]
+
     @property
     def columns(self) -> list[str]:
         if self._cached_columns is None:
