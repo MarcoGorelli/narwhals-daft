@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import operator
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Callable, cast, Iterator
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 from daft import coalesce, col, lit, Window
 
 from narwhals._compliant import LazyExpr
 from narwhals._compliant.window import WindowInputs  # todo: make public?
-from narwhals_daft.utils import narwhals_to_native_dtype, extend_bool
+from narwhals_daft.utils import narwhals_to_native_dtype
 from narwhals._expression_parsing import (
     combine_alias_output_names,
     combine_evaluate_output_names,
@@ -31,7 +31,9 @@ if TYPE_CHECKING:
     from narwhals_daft.namespace import DaftNamespace
     from narwhals._utils import Version, _LimitedContext
     from narwhals.dtypes import DType
+
     DaftWindowFunction = WindowFunction[DaftLazyFrame, Expression]
+
 
 class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     _implementation = Implementation.UNKNOWN
@@ -70,8 +72,8 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         if order_by:
             window = window.order_by(
                 *order_by,
-                desc=descending or [False]*len(order_by),
-                nulls_first=nulls_first or [True]*len(order_by)
+                desc=descending or [False] * len(order_by),
+                nulls_first=nulls_first or [True] * len(order_by),
             )
         if rows_start is not None and rows_end is not None:
             window = window.rows_between(rows_start, rows_end)
@@ -241,9 +243,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         return self._with_binary(lambda expr, other: (other / expr), other)
 
     def __floordiv__(self, other: Self) -> Self:
-        return self._with_binary(
-            lambda expr, other: (expr / other).floor(), other
-            )
+        return self._with_binary(lambda expr, other: (expr / other).floor(), other)
 
     def __rfloordiv__(self, other: Self) -> Self:
         return self._with_binary(
@@ -260,7 +260,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         return self._with_binary(lambda expr, other: (expr**other), other)
 
     def __rpow__(self, other: Self) -> Self:
-        return self._with_binary(lambda expr, other: (other** expr), other)
+        return self._with_binary(lambda expr, other: (other**expr), other)
 
     def __gt__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr > other), other)
@@ -293,7 +293,6 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
             version=self._version,
         )
 
-
     def all(self) -> Self:
         def f(expr: Expression) -> Expression:
             return coalesce(expr.bool_and(), lit(True))  # noqa: FBT003
@@ -322,11 +321,11 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     def mean(self) -> Self:
         return self._with_callable(lambda _input: _input.mean())
 
-    def clip(
-        self, lower_bound: DaftExpr, upper_bound: DaftExpr
-    ) -> Self:
+    def clip(self, lower_bound: DaftExpr, upper_bound: DaftExpr) -> Self:
         return self._with_elementwise(
-            lambda expr: expr.clip(lower_bound, upper_bound), lower_bound=lower_bound, upper_bound=upper_bound
+            lambda expr: expr.clip(lower_bound, upper_bound),
+            lower_bound=lower_bound,
+            upper_bound=upper_bound,
         )
 
     def sum(self) -> Self:
@@ -418,7 +417,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     cum_sum = not_implemented()
     diff = not_implemented()
     drop_nulls = not_implemented()
-    fill_nan =not_implemented()
+    fill_nan = not_implemented()
     filter = not_implemented()
     ewm_mean = not_implemented()
     exp = not_implemented()
@@ -447,7 +446,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     ceil = not_implemented()
 
     # namespaces
-    str = not_implemented() # pyright: ignore[reportAssignmentType]
+    str = not_implemented()  # pyright: ignore[reportAssignmentType]
     dt = not_implemented()  # pyright: ignore[reportAssignmentType]
     cat = not_implemented()  # pyright: ignore[reportAssignmentType]
     list = not_implemented()  # pyright: ignore[reportAssignmentType]

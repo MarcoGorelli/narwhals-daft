@@ -10,7 +10,8 @@ from daft import Expression
 
 from narwhals._compliant.namespace import LazyNamespace
 from narwhals._compliant.window import WindowInputs
-#from narwhals_daft import dataframe
+
+# from narwhals_daft import dataframe
 from narwhals_daft.dataframe import DaftLazyFrame
 from narwhals_daft.expr import DaftExpr
 from narwhals_daft.utils import lit, narwhals_to_native_dtype

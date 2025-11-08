@@ -145,6 +145,7 @@ def narwhals_to_native_dtype(  # noqa: PLR0912,C901
     msg = f"Unknown dtype: {dtype}"  # pragma: no cover
     raise AssertionError(msg)
 
+
 def extend_bool(
     value: bool | Iterable[bool],  # noqa: FBT001
     n_match: int,
