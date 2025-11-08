@@ -146,7 +146,6 @@ test_group_by_shift_raises or \
 test_group_by_simple_named or \
 test_group_by_simple_unnamed or \
 test_group_by_window or \
-test_invalid_operations or \
 test_is_close_expr_with_expr or \
 test_is_close_expr_with_expr or \
 test_is_close_expr_with_expr or \

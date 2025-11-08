@@ -31,11 +31,7 @@ if TYPE_CHECKING:
     from narwhals_daft.namespace import DaftNamespace
     from narwhals._utils import Version, _LimitedContext
     from narwhals.dtypes import DType
-    # @mp not sure Expression is right here
     DaftWindowFunction = WindowFunction[DaftLazyFrame, Expression]
-
-DESCENDING_TO_ORDER = {True: "desc", False: "asc"}
-NULLS_LAST_TO_NULLS_POS = {True: "nulls last", False: "nulls first"}
 
 class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     _implementation = Implementation.UNKNOWN
@@ -423,6 +419,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     diff = not_implemented()
     drop_nulls = not_implemented()
     fill_nan =not_implemented()
+    filter = not_implemented()
     ewm_mean = not_implemented()
     exp = not_implemented()
     is_first_distinct = not_implemented()
