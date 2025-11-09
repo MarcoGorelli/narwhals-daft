@@ -4,7 +4,6 @@ TESTS_THAT_NEED_FIX=" \
 test_all_kind_of_aggs or \
 test_arithmetic_expr or \
 test_arithmetic_expr_left_literal or \
-test_boolean or \
 test_cast or \
 test_cast_binary or \
 test_cast_datetime_tz_aware or \
@@ -31,7 +30,6 @@ test_convert_time_zone or \
 test_convert_time_zone_from_none or \
 test_datetime or \
 test_datetime_attributes or \
-test_datetime_no_tz or \
 test_diff_lazy or \
 test_diff_lazy_grouped or \
 test_double_same_aggregation or \
@@ -103,16 +101,8 @@ test_lazy_rank_expr or \
 test_lazy_rank_expr_desc or \
 test_left_to_right_broadcasting or \
 test_len_expr or \
-test_matches or \
-test_maxh or \
-test_maxh_all or \
-test_meanh or \
-test_meanh_all or \
-test_meanh_with_literal or \
 test_median_expr or \
 test_median_expr_raises_on_str or \
-test_minh or \
-test_minh_all or \
 test_missing_columns or \
 test_mode_expr_keep_all_lazy or \
 test_mode_expr_keep_any or \
@@ -126,7 +116,6 @@ test_nan or \
 test_nan_non_float or \
 test_native_namespace_frame or \
 test_no_agg or \
-test_numeric or \
 test_offset_by or \
 test_offset_by_dst or \
 test_offset_by_invalid_interval or \
@@ -167,7 +156,6 @@ test_scan_parquet or \
 test_schema_from_pandas_like or \
 test_schema_from_pandas_like_pyarrow or \
 test_select_duplicates or \
-test_selectors or \
 test_set_ops or \
 test_shift_lazy or \
 test_shift_lazy_grouped or \
@@ -192,13 +180,7 @@ test_str_to_lowercase or \
 test_str_to_titlecase_expr or \
 test_str_to_uppercase or \
 test_str_zfill or \
-test_string or \
-test_subtract_expr or \
-test_sumh or \
-test_sumh_aggregations or \
-test_sumh_all or \
 test_sumh_broadcasting or \
-test_sumh_nullable or \
 test_sumh_transformations or \
 test_timestamp_dates or \
 test_timestamp_datetimes or \
@@ -224,8 +206,6 @@ test_unique or \
 test_unique_3069 or \
 test_unique_expr or \
 test_unique_expr_agg or \
-test_unique_first_last or \
-test_unique_first_last_no_subset or \
 test_unique_full_subset or \
 test_unique_invalid or \
 test_unique_none or \

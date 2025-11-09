@@ -4,13 +4,14 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 
 import daft
 import daft.exceptions
-import daft.functions
+import daft.functions as F
 from daft import Expression
 from narwhals._utils import (
     Implementation,
     ValidateBackendVersion,
     Version,
     check_column_names_are_unique,
+    generate_temporary_column_name,
     not_implemented,
     parse_columns_to_drop,
 )
@@ -240,16 +241,25 @@ class DaftLazyFrame(
         ]
         return self._with_native(self.native.select(*selection))
 
-    def unique(self, subset: Sequence[str] | None, keep: str) -> Self:
-        # upstream issue:
-        # https://github.com/Eventual-Inc/Daft/issues/4151
-        if subset and set(subset) != set(self.columns):
-            msg = "`unique` with `subset` specified is not yet supported."
-            raise NotImplementedError(msg)
+    def unique(
+        self, subset: Sequence[str] | None, *, keep: str, order_by: Sequence[str] | None
+    ) -> Self:
+        subset_ = subset or self.columns
+        tmp_name = generate_temporary_column_name(8, self.columns, prefix="row_index_")
+        window = daft.Window().partition_by(*subset_)
+        if order_by and keep == "last":
+            window = window.order_by(*order_by, desc=True, nulls_first=False)
+        elif order_by:
+            window = window.order_by(*order_by, desc=False, nulls_first=True)
         if keep == "none":
-            msg = "Only `keep='any'` is supported for `'daft'`."
-            raise NotImplementedError(msg)
-        return self._with_native(self._native_frame.unique())
+            expr = daft.col(self.columns[0]).count(mode="all").over(window)
+        else:
+            expr = F.row_number().over(window)
+        df = self.native.with_column(tmp_name, expr).filter(
+            daft.col(tmp_name) == lit(1)
+        )
+        df = df.select(*(x for x in df.column_names if x != tmp_name))
+        return self._with_native(df)
 
     def join(
         self,
