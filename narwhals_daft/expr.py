@@ -105,7 +105,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
             descending = list(extend_bool(reverse, len(inputs.order_by)))
             nulls_first = list(extend_bool(not reverse, len(inputs.order_by)))
             return [
-                self._when(
+                F.when(
                     ~self._function("isnull", expr),  # type: ignore[operator]
                     self._window_expression(
                         getattr(F, func_name)(expr),
@@ -166,7 +166,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
                 "rows_end": end,
             }
             return [
-                self._when(
+                F.when(
                     self._window_expression(expr.count(), **window_kwargs)
                     >= lit(min_samples),
                     self._window_expression(getattr(F, func_)(expr), **window_kwargs),
