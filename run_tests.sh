@@ -176,12 +176,8 @@ test_replace_strict_with_expressified_default or \
 test_replace_time_zone or \
 test_replace_time_zone_none or \
 test_right_arithmetic_expr or \
-test_rolling_mean_expr_lazy_grouped or \
-test_rolling_mean_expr_lazy_ungrouped or \
 test_rolling_std_expr_lazy_grouped or \
 test_rolling_std_expr_lazy_ungrouped or \
-test_rolling_sum_expr_lazy_grouped or \
-test_rolling_sum_expr_lazy_ungrouped or \
 test_rolling_var_expr_lazy_grouped or \
 test_rolling_var_expr_lazy_ungrouped or \
 test_scan_csv or \
