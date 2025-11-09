@@ -22,6 +22,8 @@ def update_run_tests() -> None:
             "-v",
             "--constructors",
             "daft",
+            "-W",
+            "ignore",
         ],
         check=False,
         capture_output=True,

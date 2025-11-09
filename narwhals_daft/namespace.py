@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import operator
+import warnings
 from functools import reduce
 from typing import TYPE_CHECKING, Any
 
@@ -11,6 +12,7 @@ from narwhals._utils import Implementation, not_implemented
 
 from narwhals_daft.dataframe import DaftLazyFrame
 from narwhals_daft.expr import DaftExpr
+from narwhals_daft.selectors import DaftSelectorNamespace
 from narwhals_daft.utils import lit, narwhals_to_native_dtype
 
 if TYPE_CHECKING:
@@ -31,6 +33,10 @@ class DaftNamespace(LazyNamespace[DaftLazyFrame, DaftExpr, daft.DataFrame]):
 
     def from_native(self, native_object: daft.DataFrame) -> DaftLazyFrame:
         return DaftLazyFrame(native_object, version=self._version)
+
+    @property
+    def selectors(self) -> DaftSelectorNamespace:
+        return DaftSelectorNamespace.from_namespace(self)
 
     @property
     def _expr(self) -> type[DaftExpr]:
@@ -95,25 +101,49 @@ class DaftNamespace(LazyNamespace[DaftLazyFrame, DaftExpr, daft.DataFrame]):
 
     def sum_horizontal(self, *exprs: DaftExpr) -> DaftExpr:
         def func(cols: Iterable[Expression]) -> Expression:
-            return daft.functions.columns_sum(*cols)
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore",
+                    message=".*`daft\\.list_` is deprecated",
+                    category=DeprecationWarning,
+                )
+                return daft.functions.columns_sum(*cols)
 
         return self._expr._from_elementwise_horizontal_op(func, *exprs)
 
     def max_horizontal(self, *exprs: DaftExpr) -> DaftExpr:
         def func(cols: Iterable[Expression]) -> Expression:
-            return daft.functions.columns_max(*cols)
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore",
+                    message=".*`daft\\.list_` is deprecated",
+                    category=DeprecationWarning,
+                )
+                return daft.functions.columns_max(*cols)
 
         return self._expr._from_elementwise_horizontal_op(func, *exprs)
 
     def min_horizontal(self, *exprs: DaftExpr) -> DaftExpr:
         def func(cols: Iterable[Expression]) -> Expression:
-            return daft.functions.columns_min(*cols)
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore",
+                    message=".*`daft\\.list_` is deprecated",
+                    category=DeprecationWarning,
+                )
+                return daft.functions.columns_min(*cols)
 
         return self._expr._from_elementwise_horizontal_op(func, *exprs)
 
     def mean_horizontal(self, *exprs: DaftExpr) -> DaftExpr:
         def func(cols: Iterable[Expression]) -> Expression:
-            return daft.functions.columns_mean(*cols)
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore",
+                    message=".*`daft\\.list_` is deprecated",
+                    category=DeprecationWarning,
+                )
+                return daft.functions.columns_mean(*cols)
 
         return self._expr._from_elementwise_horizontal_op(func, *exprs)
 
@@ -147,4 +177,3 @@ class DaftNamespace(LazyNamespace[DaftLazyFrame, DaftExpr, daft.DataFrame]):
         )
 
     coalesce: not_implemented = not_implemented()
-    selectors: not_implemented = not_implemented()
