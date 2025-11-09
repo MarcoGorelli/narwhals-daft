@@ -34,7 +34,7 @@ def update_run_tests() -> None:
     )
 
     # Sort and format the test names
-    formatted_tests = " or \\\n".join(sorted(failed_tests))
+    formatted_tests = " or \\\n".join(sorted(set(failed_tests)))
 
     # Read the current run_tests.sh
     run_tests_path = Path("run_tests.sh")
@@ -49,9 +49,12 @@ def update_run_tests() -> None:
     )
 
     # Write back to run_tests.sh
-    run_tests_path.write_text(new_content, encoding="utf-8")
+    if new_content != content:
+        run_tests_path.write_text(new_content, encoding="utf-8")
 
-    print("Updated run_tests.sh with new failing tests")
+        print("Updated run_tests.sh with new failing tests")
+    else:
+        print("Nothing to update")
 
 
 if __name__ == "__main__":
