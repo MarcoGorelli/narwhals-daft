@@ -14,7 +14,7 @@ from narwhals._expression_parsing import (
 )
 from narwhals._utils import Implementation, not_implemented
 
-from narwhals_daft.utils import extend_bool, narwhals_to_native_dtype
+from narwhals_daft.utils import evaluate_literal, extend_bool, narwhals_to_native_dtype
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Sequence
@@ -342,7 +342,9 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         return self._with_binary(lambda expr, other: (expr - other), other)
 
     def __rsub__(self, other: Self) -> Self:
-        return self._with_binary(lambda expr, other: (other - expr), other)
+        return self._with_binary(lambda expr, other: (other - expr), other).alias(
+            "literal"
+        )
 
     def __mul__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr * other), other)
@@ -351,7 +353,9 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         return self._with_binary(lambda expr, other: (expr / other), other)
 
     def __rtruediv__(self, other: Self) -> Self:
-        return self._with_binary(lambda expr, other: (other / expr), other)
+        return self._with_binary(lambda expr, other: (other / expr), other).alias(
+            "literal"
+        )
 
     def __floordiv__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr / other).floor(), other)
@@ -365,13 +369,23 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         return self._with_binary(lambda expr, other: (expr % other), other)
 
     def __rmod__(self, other: Self) -> Self:
-        return self._with_binary(lambda expr, other: (other % expr), other)
+        return self._with_binary(lambda expr, other: (other % expr), other).alias(
+            "literal"
+        )
 
     def __pow__(self, other: Self) -> Self:
-        return self._with_binary(lambda expr, other: (expr**other), other)
+        if other._metadata.is_literal:
+            other_lit = evaluate_literal(other)
+            return self._with_callable(lambda expr: (expr**other_lit))
+        msg = "`pow` with non-literal input is not yet supported"
+        raise NotImplementedError(msg)
 
     def __rpow__(self, other: Self) -> Self:
-        return self._with_binary(lambda expr, other: (other**expr), other)
+        if other._metadata.is_literal:
+            other_lit = evaluate_literal(other)
+            return self._with_callable(lambda expr: (other_lit**expr)).alias("literal")
+        msg = "`__rpow__` with non-literal input is not yet supported"
+        raise NotImplementedError(msg)
 
     def __gt__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr > other), other)
@@ -421,7 +435,15 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
             native_dtype = narwhals_to_native_dtype(dtype, self._version)
             return expr.cast(native_dtype)
 
-        return self._with_elementwise(func)
+        def window_func(
+            df: DaftLazyFrame, inputs: WindowInputs[Expression]
+        ) -> list[Expression]:
+            native_dtype = narwhals_to_native_dtype(dtype, self._version)
+            return [
+                expr.cast(native_dtype) for expr in self.window_function(df, inputs)
+            ]
+
+        return self._with_callable(func, window_func)
 
     def count(self) -> Self:
         return self._with_elementwise(lambda _input: _input.count("valid"))
@@ -622,8 +644,6 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     mode = not_implemented()
     quantile = not_implemented()
     replace_strict = not_implemented()
-    rolling_max = not_implemented()
-    rolling_min = not_implemented()
     shift = not_implemented()
     sqrt = not_implemented()
     unique = not_implemented()
