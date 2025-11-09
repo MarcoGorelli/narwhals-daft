@@ -56,7 +56,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
 
     def _partition_by(self, *cols: Expression | str) -> Window:
         """Wraps `Window().partitionBy`, with default and `WindowInputs` handling."""
-        return Window().partition_by(*cols)
+        return Window().partition_by(*cols or [lit(1)])
 
     def _window_expression(
         self,
@@ -106,7 +106,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
             nulls_first = list(extend_bool(not reverse, len(inputs.order_by)))
             return [
                 F.when(
-                    ~self._function("isnull", expr),  # type: ignore[operator]
+                    ~F.is_null(expr),
                     self._window_expression(
                         getattr(F, func_name)(expr),
                         inputs.partition_by,
@@ -531,13 +531,81 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     def _is_expr(cls, obj: Self | Any) -> TypeIs[Self]:
         return hasattr(obj, "__narwhals_expr__")
 
+    def _with_window_function(
+        self, window_function: WindowFunction[DaftLazyFrame, Expression]
+    ) -> Self:
+        return self.__class__(
+            self._call,
+            window_function,
+            evaluate_output_names=self._evaluate_output_names,
+            alias_output_names=self._alias_output_names,
+            version=self._version,
+        )
+
+    def cum_sum(self, *, reverse: bool) -> Self:
+        return self._with_window_function(self._cum_window_func("sum", reverse=reverse))
+
+    def cum_max(self, *, reverse: bool) -> Self:
+        return self._with_window_function(self._cum_window_func("max", reverse=reverse))
+
+    def cum_min(self, *, reverse: bool) -> Self:
+        return self._with_window_function(self._cum_window_func("min", reverse=reverse))
+
+    def cum_count(self, *, reverse: bool) -> Self:
+        def func(
+            df: DaftLazyFrame, inputs: WindowInputs[Expression]
+        ) -> Sequence[Expression]:
+            descending = list(extend_bool(reverse, len(inputs.order_by)))
+            nulls_first = list(extend_bool(not reverse, len(inputs.order_by)))
+            return [
+                self._window_expression(
+                    expr.count(),
+                    inputs.partition_by,
+                    inputs.order_by,
+                    descending=descending,
+                    nulls_first=nulls_first,
+                    rows_end=0,
+                )
+                for expr in self(df)
+            ]
+
+        return self._with_window_function(func)
+
+    def cum_prod(self, *, reverse: bool) -> Self:
+        return self._with_window_function(
+            self._cum_window_func("product", reverse=reverse)
+        )
+
+    def rolling_sum(self, window_size: int, *, min_samples: int, center: bool) -> Self:
+        return self._with_window_function(
+            self._rolling_window_func("sum", window_size, min_samples, center=center)
+        )
+
+    def rolling_mean(self, window_size: int, *, min_samples: int, center: bool) -> Self:
+        return self._with_window_function(
+            self._rolling_window_func("mean", window_size, min_samples, center=center)
+        )
+
+    def rolling_var(
+        self, window_size: int, *, min_samples: int, center: bool, ddof: int
+    ) -> Self:
+        return self._with_window_function(
+            self._rolling_window_func(
+                "var", window_size, min_samples, ddof=ddof, center=center
+            )
+        )
+
+    def rolling_std(
+        self, window_size: int, *, min_samples: int, center: bool, ddof: int
+    ) -> Self:
+        return self._with_window_function(
+            self._rolling_window_func(
+                "std", window_size, min_samples, ddof=ddof, center=center
+            )
+        )
+
     clip_lower = not_implemented()
     clip_upper = not_implemented()
-    cum_count = not_implemented()
-    cum_max = not_implemented()
-    cum_min = not_implemented()
-    cum_prod = not_implemented()
-    cum_sum = not_implemented()
     diff = not_implemented()
     drop_nulls = not_implemented()
     fill_nan = not_implemented()
@@ -555,11 +623,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     quantile = not_implemented()
     replace_strict = not_implemented()
     rolling_max = not_implemented()
-    rolling_mean = not_implemented()
     rolling_min = not_implemented()
-    rolling_sum = not_implemented()
-    rolling_std = not_implemented()
-    rolling_var = not_implemented()
     shift = not_implemented()
     sqrt = not_implemented()
     unique = not_implemented()
