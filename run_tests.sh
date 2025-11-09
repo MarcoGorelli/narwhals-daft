@@ -1,15 +1,7 @@
 #!/bin/bash
 
 TESTS_THAT_NEED_FIX=" \
-test_all_ignore_nulls or \
 test_all_kind_of_aggs or \
-test_allh or \
-test_allh_all or \
-test_allh_iterator or \
-test_allh_nth or \
-test_any_all or \
-test_anyh or \
-test_anyh_ignore_nulls or \
 test_arithmetic_expr or \
 test_arithmetic_expr_left_literal or \
 test_boolean or \
@@ -28,7 +20,6 @@ test_clip_expr_expressified or \
 test_coalesce_multi_output or \
 test_coalesce_numeric or \
 test_coalesce_strings or \
-test_collect_with_kwargs or \
 test_concat_str or \
 test_concat_str_with_lit or \
 test_concat_vertical or \
@@ -49,7 +40,6 @@ test_dt_to_string_expr or \
 test_dt_to_string_iso_local_date_expr or \
 test_dt_to_string_iso_local_datetime_expr or \
 test_duration_attributes or \
-test_empty_scalar_reduction_select or \
 test_empty_scalar_reduction_with_columns or \
 test_ends_with or \
 test_exp_expr or \
@@ -60,8 +50,6 @@ test_explode_single_col or \
 test_expr_binary or \
 test_expr_floordiv_by_zero or \
 test_expr_rfloordiv_by_zero or \
-test_expr_rtruediv_by_zero or \
-test_expr_sum_expr or \
 test_fancy_functions or \
 test_fill_nan or \
 test_fill_null_limits or \
@@ -132,7 +120,6 @@ test_mode_group_by_multimodal or \
 test_mode_group_by_multiple_cols or \
 test_mode_group_by_unimodal or \
 test_multi_column_expansion or \
-test_multiple_conditions or \
 test_n_unique_over or \
 test_namespace_from_native_object or \
 test_nan or \
@@ -145,7 +132,6 @@ test_offset_by_dst or \
 test_offset_by_invalid_interval or \
 test_offset_by_tz or \
 test_order_dependent_raises_in_lazy or \
-test_otherwise_expression or \
 test_over_anonymous_reduction or \
 test_over_pushdown or \
 test_over_quantile or \
@@ -243,17 +229,8 @@ test_unique_first_last_no_subset or \
 test_unique_full_subset or \
 test_unique_invalid or \
 test_unique_none or \
-test_value_expression or \
-test_when or \
-test_when_otherwise or \
 test_when_then_broadcasting or \
-test_when_then_empty or \
-test_when_then_otherwise_aggregate_select or \
 test_when_then_otherwise_aggregate_with_columns or \
-test_when_then_otherwise_both_lit or \
-test_when_then_otherwise_into_expr or \
-test_when_then_otherwise_lit_str or \
-test_when_then_otherwise_multi_output or \
 test_with_columns_dtypes_single_row or \
 test_with_columns_missing_column \
 "

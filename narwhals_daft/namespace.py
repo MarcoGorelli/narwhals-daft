@@ -5,7 +5,7 @@ from functools import reduce
 from typing import TYPE_CHECKING, Any
 
 import daft
-import daft.functions
+import daft.functions as F
 from narwhals._compliant.namespace import LazyNamespace
 from narwhals._utils import Implementation, not_implemented
 
@@ -81,22 +81,14 @@ class DaftNamespace(LazyNamespace[DaftLazyFrame, DaftExpr, daft.DataFrame]):
 
     def all_horizontal(self, *exprs: DaftExpr, ignore_nulls: bool) -> DaftExpr:
         def func(cols: Iterable[Expression]) -> Expression:
-            it = (
-                (daft.coalesce(col, lit(True)) for col in cols)
-                if ignore_nulls
-                else cols
-            )
+            it = (F.coalesce(col, lit(True)) for col in cols) if ignore_nulls else cols
             return reduce(operator.and_, it)
 
         return self._expr._from_elementwise_horizontal_op(func, *exprs)
 
     def any_horizontal(self, *exprs: DaftExpr, ignore_nulls: bool) -> DaftExpr:
         def func(cols: Iterable[Expression]) -> Expression:
-            it = (
-                (daft.coalesce(col, lit(False)) for col in cols)
-                if ignore_nulls
-                else cols
-            )
+            it = (F.coalesce(col, lit(False)) for col in cols) if ignore_nulls else cols
             return reduce(operator.or_, it)
 
         return self._expr._from_elementwise_horizontal_op(func, *exprs)
@@ -139,6 +131,20 @@ class DaftNamespace(LazyNamespace[DaftLazyFrame, DaftExpr, daft.DataFrame]):
             version=self._version,
         )
 
-    when: not_implemented = not_implemented()
+    def when_then(
+        self, predicate: DaftExpr, then: DaftExpr, otherwise: DaftExpr | None = None
+    ) -> DaftExpr:
+        def func(cols: list[Expression]) -> Expression:
+            return F.when(cols[1], cols[0])
+
+        def func_with_otherwise(cols: list[Expression]) -> Expression:
+            return F.when(cols[1], cols[0]).otherwise(cols[2])
+
+        if otherwise is None:
+            return self._expr._from_elementwise_horizontal_op(func, then, predicate)
+        return self._expr._from_elementwise_horizontal_op(
+            func_with_otherwise, then, predicate, otherwise
+        )
+
     coalesce: not_implemented = not_implemented()
     selectors: not_implemented = not_implemented()

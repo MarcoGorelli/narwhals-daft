@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import operator
-from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, Literal, cast
 
 import daft.functions as F
-from daft import Window, coalesce, col, lit
+from daft import Window, col, lit
 from narwhals._compliant import LazyExpr
 from narwhals._compliant.window import WindowInputs  # TODO: make public?
 from narwhals._expression_parsing import (
@@ -17,7 +16,7 @@ from narwhals._utils import Implementation, not_implemented
 from narwhals_daft.utils import evaluate_literal, extend_bool, narwhals_to_native_dtype
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Sequence
+    from collections.abc import Callable, Sequence
 
     from daft import Expression
     from narwhals._compliant.typing import (
@@ -229,15 +228,21 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
 
     @classmethod
     def _from_elementwise_horizontal_op(
-        cls, func: Callable[[Iterable[Expression]], Expression], *exprs: Self
-    ) -> Self:
-        def call(df: DaftLazyFrame) -> list[Expression]:
-            cols = (col for _expr in exprs for col in _expr(df))
-            return [func(cols)]
+        cls, func: Callable[[list[Expression]], Expression], *exprs: DaftExpr
+    ) -> DaftExpr:
+        def call(df: DaftLazyFrame) -> Sequence[Expression]:
+            return [func([e for expr in exprs for e in expr(df)])]
+
+        def window_function(
+            df: DaftLazyFrame, window_inputs: WindowInputs[Expression]
+        ) -> Sequence[Expression]:
+            lst = [e for expr in exprs for e in expr.window_function(df, window_inputs)]
+            return [func(lst)]
 
         context = exprs[0]
         return cls(
-            call=call,
+            call,
+            window_function=window_function,
             evaluate_output_names=combine_evaluate_output_names(*exprs),
             alias_output_names=combine_alias_output_names(*exprs),
             version=context._version,
@@ -429,13 +434,13 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
 
     def all(self) -> Self:
         def f(expr: Expression) -> Expression:
-            return coalesce(expr.bool_and(), lit(True))
+            return F.coalesce(expr.bool_and(), lit(True))
 
         return self._with_callable(f)
 
     def any(self) -> Self:
         def f(expr: Expression) -> Expression:
-            return coalesce(expr.bool_or(), lit(False))
+            return F.coalesce(expr.bool_or(), lit(False))
 
         return self._with_callable(f)
 
@@ -472,7 +477,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
 
     def sum(self) -> Self:
         def f(expr: Expression) -> Expression:
-            return coalesce(expr.sum(), lit(0))
+            return F.coalesce(expr.sum(), lit(0))
 
         return self._with_callable(f)
 
