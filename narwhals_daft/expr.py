@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import operator
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
+import daft.functions as F
 from daft import Window, coalesce, col, lit
 from narwhals._compliant import LazyExpr
 from narwhals._compliant.window import WindowInputs  # TODO: make public?
@@ -13,7 +14,7 @@ from narwhals._expression_parsing import (
 )
 from narwhals._utils import Implementation, not_implemented
 
-from narwhals_daft.utils import narwhals_to_native_dtype
+from narwhals_daft.utils import extend_bool, narwhals_to_native_dtype
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Sequence
@@ -94,6 +95,86 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
             ]
 
         return self._window_function or default_window_func
+
+    def _cum_window_func(
+        self, func_name: Literal["sum", "max", "min", "product"], *, reverse: bool
+    ) -> WindowFunction[DaftLazyFrame, Expression]:
+        def func(
+            df: DaftLazyFrame, inputs: WindowInputs[Expression]
+        ) -> Sequence[Expression]:
+            descending = list(extend_bool(reverse, len(inputs.order_by)))
+            nulls_first = list(extend_bool(not reverse, len(inputs.order_by)))
+            return [
+                self._when(
+                    ~self._function("isnull", expr),  # type: ignore[operator]
+                    self._window_expression(
+                        getattr(F, func_name)(expr),
+                        inputs.partition_by,
+                        inputs.order_by,
+                        descending=descending,
+                        nulls_first=nulls_first,
+                        rows_end=0,
+                    ),
+                )
+                for expr in self(df)
+            ]
+
+        return func
+
+    def _rolling_window_func(
+        self,
+        func_name: Literal["sum", "mean", "std", "var"],
+        window_size: int,
+        min_samples: int,
+        ddof: int | None = None,
+        *,
+        center: bool,
+    ) -> WindowFunction[DaftLazyFrame, Expression]:
+        supported_funcs = ["sum", "mean", "std", "var"]
+        if center:
+            half = (window_size - 1) // 2
+            remainder = (window_size - 1) % 2
+            start = -(half + remainder)
+            end = half
+        else:
+            start = -(window_size - 1)
+            end = 0
+
+        def func(
+            df: DaftLazyFrame, inputs: WindowInputs[Expression]
+        ) -> Sequence[Expression]:
+            if func_name in {"sum", "mean"}:
+                func_: str = func_name
+            elif func_name == "var" and ddof == 0:
+                func_ = "var_pop"
+            elif func_name in "var" and ddof == 1:
+                func_ = "var_samp"
+            elif func_name == "std" and ddof == 0:
+                func_ = "stddev_pop"
+            elif func_name == "std" and ddof == 1:
+                func_ = "stddev_samp"
+            elif func_name in {"var", "std"}:  # pragma: no cover
+                msg = f"Only ddof=0 and ddof=1 are currently supported for rolling_{func_name}."
+                raise ValueError(msg)
+            else:  # pragma: no cover
+                msg = f"Only the following functions are supported: {supported_funcs}.\nGot: {func_name}."
+                raise ValueError(msg)
+            window_kwargs: Any = {
+                "partition_by": inputs.partition_by,
+                "order_by": inputs.order_by,
+                "rows_start": start,
+                "rows_end": end,
+            }
+            return [
+                self._when(
+                    self._window_expression(expr.count(), **window_kwargs)
+                    >= lit(min_samples),
+                    self._window_expression(getattr(F, func_)(expr), **window_kwargs),
+                )
+                for expr in self(df)
+            ]
+
+        return func
 
     def broadcast(self) -> Self:
         return self.over([lit(1)], [])
