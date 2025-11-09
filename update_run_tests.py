@@ -34,7 +34,7 @@ def update_run_tests() -> None:
     )
 
     # Sort and format the test names
-    formatted_tests = " or \\\n".join(sorted(failed_tests))
+    formatted_tests = " or \\\n".join(sorted(set(failed_tests)))
 
     # Read the current run_tests.sh
     run_tests_path = Path("run_tests.sh")
