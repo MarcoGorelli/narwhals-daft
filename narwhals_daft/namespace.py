@@ -6,20 +6,18 @@ from typing import TYPE_CHECKING, Any
 
 import daft
 import daft.functions
-from daft import Expression
-
 from narwhals._compliant.namespace import LazyNamespace
-from narwhals._compliant.window import WindowInputs
+from narwhals._utils import Implementation, not_implemented
 
-# from narwhals_daft import dataframe
 from narwhals_daft.dataframe import DaftLazyFrame
 from narwhals_daft.expr import DaftExpr
 from narwhals_daft.utils import lit, narwhals_to_native_dtype
-from narwhals._utils import Implementation, not_implemented
 
 if TYPE_CHECKING:
-    import daft
     from collections.abc import Iterable
+
+    from daft import Expression
+    from narwhals._compliant.window import WindowInputs
     from narwhals._utils import Version
     from narwhals.dtypes import DType
     from narwhals.typing import ConcatMethod
@@ -84,7 +82,7 @@ class DaftNamespace(LazyNamespace[DaftLazyFrame, DaftExpr, daft.DataFrame]):
     def all_horizontal(self, *exprs: DaftExpr, ignore_nulls: bool) -> DaftExpr:
         def func(cols: Iterable[Expression]) -> Expression:
             it = (
-                (daft.coalesce(col, lit(True)) for col in cols)  # noqa: FBT003
+                (daft.coalesce(col, lit(True)) for col in cols)
                 if ignore_nulls
                 else cols
             )
@@ -95,7 +93,7 @@ class DaftNamespace(LazyNamespace[DaftLazyFrame, DaftExpr, daft.DataFrame]):
     def any_horizontal(self, *exprs: DaftExpr, ignore_nulls: bool) -> DaftExpr:
         def func(cols: Iterable[Expression]) -> Expression:
             it = (
-                (daft.coalesce(col, lit(False)) for col in cols)  # noqa: FBT003
+                (daft.coalesce(col, lit(False)) for col in cols)
                 if ignore_nulls
                 else cols
             )

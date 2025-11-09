@@ -1,18 +1,19 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable, Sequence
+from typing import TYPE_CHECKING
 
 import daft
-import daft.datatype
 from daft import DataType
-
 from narwhals._utils import isinstance_or_issubclass
 
 if TYPE_CHECKING:
-    from narwhals_daft.dataframe import DaftLazyFrame
-    from narwhals_daft.expr import DaftExpr
+    from collections.abc import Iterable, Sequence
+
     from narwhals._utils import Version
     from narwhals.dtypes import DType
+
+    from narwhals_daft.dataframe import DaftLazyFrame
+    from narwhals_daft.expr import DaftExpr
 
 lit = daft.lit
 """Alias for `daft.lit`."""
@@ -30,11 +31,11 @@ def evaluate_exprs(
         if len(output_names) != len(native_series_list):  # pragma: no cover
             msg = f"Internal error: got output names {output_names}, but only got {len(native_series_list)} results"
             raise AssertionError(msg)
-        native_results.extend(zip(output_names, native_series_list))
+        native_results.extend(zip(output_names, native_series_list, strict=True))
     return native_results
 
 
-def native_to_narwhals_dtype(daft_dtype: DataType, version: Version) -> DType:  # noqa: PLR0912,C901
+def native_to_narwhals_dtype(daft_dtype: DataType, version: Version) -> DType:  # noqa: PLR0912,C901,PLR0911
     dtypes = version.dtypes
 
     if daft_dtype == DataType.int64():
@@ -76,7 +77,7 @@ def native_to_narwhals_dtype(daft_dtype: DataType, version: Version) -> DType:  
     return dtypes.Unknown()  # pragma: no cover
 
 
-def narwhals_to_native_dtype(  # noqa: PLR0912,C901
+def narwhals_to_native_dtype(  # noqa: PLR0912,C901,PLR0911
     dtype: DType | type[DType], version: Version
 ) -> daft.DataType:
     dtypes = version.dtypes

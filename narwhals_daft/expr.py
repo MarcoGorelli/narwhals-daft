@@ -2,35 +2,35 @@ from __future__ import annotations
 
 import operator
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Callable, cast
+from typing import TYPE_CHECKING, Any, cast
 
-from daft import coalesce, col, lit, Window
-
+from daft import Window, coalesce, col, lit
 from narwhals._compliant import LazyExpr
-from narwhals._compliant.window import WindowInputs  # todo: make public?
-from narwhals_daft.utils import narwhals_to_native_dtype
+from narwhals._compliant.window import WindowInputs  # TODO: make public?
 from narwhals._expression_parsing import (
     combine_alias_output_names,
     combine_evaluate_output_names,
 )
 from narwhals._utils import Implementation, not_implemented
 
+from narwhals_daft.utils import narwhals_to_native_dtype
+
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Callable, Iterable, Sequence
 
     from daft import Expression
-    from typing_extensions import Self, TypeIs
-
     from narwhals._compliant.typing import (
         AliasNames,
         EvalNames,
         EvalSeries,
         WindowFunction,
     )
-    from narwhals_daft.dataframe import DaftLazyFrame
-    from narwhals_daft.namespace import DaftNamespace
     from narwhals._utils import Version, _LimitedContext
     from narwhals.dtypes import DType
+    from typing_extensions import Self, TypeIs
+
+    from narwhals_daft.dataframe import DaftLazyFrame
+    from narwhals_daft.namespace import DaftNamespace
 
     DaftWindowFunction = WindowFunction[DaftLazyFrame, Expression]
 
@@ -168,7 +168,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         def func(df: DaftLazyFrame) -> list[Expression]:
             native_series_list = self(df)
             other_native_series = {
-                key: df._evaluate_expr(value) if self._is_expr(value) else lit(value)
+                key: df._evaluate_expr(value)
                 for key, value in expressifiable_args.items()
             }
             return [
@@ -178,11 +178,39 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
 
         return func
 
+    def _push_down_window_function(
+        self, call: Callable[..., Expression], /, **expressifiable_args: Self
+    ) -> WindowFunction[DaftLazyFrame, Expression]:
+        def window_f(
+            df: DaftLazyFrame, window_inputs: WindowInputs[Expression]
+        ) -> Sequence[Expression]:
+            # If a function `f` is elementwise, and `g` is another function, then
+            # - `f(g) over (window)`
+            # - `f(g over (window))
+            # are equivalent.
+            # Make sure to only use with if `call` is elementwise!
+            native_series_list = self.window_function(df, window_inputs)
+            other_native_series = {
+                key: df._evaluate_window_expr(value, window_inputs)
+                for key, value in expressifiable_args.items()
+            }
+            return [
+                call(native_series, **other_native_series)
+                for native_series in native_series_list
+            ]
+
+        return window_f
+
     def _with_callable(
-        self, call: Callable[..., Expression], /, **expressifiable_args: Self | Any
+        self,
+        call: Callable[..., Expression],
+        window_func: WindowFunction[DaftLazyFrame, Expression] | None = None,
+        /,
+        **expressifiable_args: Self | Any,
     ) -> Self:
         return self.__class__(
             self._callable_to_eval_series(call, **expressifiable_args),
+            window_func,
             evaluate_output_names=self._evaluate_output_names,
             alias_output_names=self._alias_output_names,
             version=self._version,
@@ -193,6 +221,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     ) -> Self:
         return self.__class__(
             self._callable_to_eval_series(call, **expressifiable_args),
+            self._push_down_window_function(call, **expressifiable_args),
             evaluate_output_names=self._evaluate_output_names,
             alias_output_names=self._alias_output_names,
             version=self._version,
@@ -201,6 +230,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     def _with_binary(self, op: Callable[..., Expression], other: Self | Any) -> Self:
         return self.__class__(
             self._callable_to_eval_series(op, other=other),
+            self._push_down_window_function(op, other=other),
             evaluate_output_names=self._evaluate_output_names,
             alias_output_names=self._alias_output_names,
             version=self._version,
@@ -224,13 +254,13 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         invert = cast("Callable[..., Expression]", operator.invert)
         return self._with_elementwise(invert)
 
-    def __add__(self, other) -> Self:
+    def __add__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr + other), other)
 
-    def __sub__(self, other) -> Self:
+    def __sub__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr - other), other)
 
-    def __rsub__(self, other) -> Self:
+    def __rsub__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (other - expr), other)
 
     def __mul__(self, other: Self) -> Self:
@@ -295,13 +325,13 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
 
     def all(self) -> Self:
         def f(expr: Expression) -> Expression:
-            return coalesce(expr.bool_and(), lit(True))  # noqa: FBT003
+            return coalesce(expr.bool_and(), lit(True))
 
         return self._with_callable(f)
 
     def any(self) -> Self:
         def f(expr: Expression) -> Expression:
-            return coalesce(expr.bool_or(), lit(False))  # noqa: FBT003
+            return coalesce(expr.bool_or(), lit(False))
 
         return self._with_callable(f)
 
@@ -350,7 +380,19 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
             n_samples = expr.count(mode="valid")
             return std_pop * n_samples.sqrt() / (n_samples - ddof).sqrt()
 
-        return self._with_callable(func)
+        def window_func(
+            df: DaftLazyFrame, inputs: WindowInputs[Expression]
+        ) -> list[Expression]:
+            assert not inputs.order_by  # noqa: S101
+            w = Window().partition_by(*inputs.partition_by)
+            return [
+                expr.stddev().over(w)
+                * expr.count().over(w).sqrt()
+                / (expr.count().over(w) - lit(ddof)).sqrt()
+                for expr in self(df)
+            ]
+
+        return self._with_callable(func, window_func)
 
     def var(self, ddof: int) -> Self:
         def func(expr: Expression) -> Expression:
