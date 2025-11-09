@@ -202,10 +202,15 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         return window_f
 
     def _with_callable(
-        self, call: Callable[..., Expression], /, **expressifiable_args: Self | Any
+        self,
+        call: Callable[..., Expression],
+        window_func: WindowFunction[DaftLazyFrame, Expression] | None = None,
+        /,
+        **expressifiable_args: Self | Any,
     ) -> Self:
         return self.__class__(
             self._callable_to_eval_series(call, **expressifiable_args),
+            window_func,
             evaluate_output_names=self._evaluate_output_names,
             alias_output_names=self._alias_output_names,
             version=self._version,
@@ -216,6 +221,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     ) -> Self:
         return self.__class__(
             self._callable_to_eval_series(call, **expressifiable_args),
+            self._push_down_window_function(call, **expressifiable_args),
             evaluate_output_names=self._evaluate_output_names,
             alias_output_names=self._alias_output_names,
             version=self._version,
@@ -374,7 +380,19 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
             n_samples = expr.count(mode="valid")
             return std_pop * n_samples.sqrt() / (n_samples - ddof).sqrt()
 
-        return self._with_callable(func)
+        def window_func(
+            df: DaftLazyFrame, inputs: WindowInputs[Expression]
+        ) -> list[Expression]:
+            assert not inputs.order_by  # noqa: S101
+            w = Window().partition_by(*inputs.partition_by)
+            return [
+                expr.stddev().over(w)
+                * expr.count().over(w).sqrt()
+                / (expr.count().over(w) - lit(ddof)).sqrt()
+                for expr in self(df)
+            ]
+
+        return self._with_callable(func, window_func)
 
     def var(self, ddof: int) -> Self:
         def func(expr: Expression) -> Expression:
