@@ -6,8 +6,10 @@ import daft
 from daft import Expression
 import daft.exceptions
 import daft.functions
+from narwhals.exceptions import MultiOutputExpressionError
 
 from narwhals_daft.utils import evaluate_exprs, lit, native_to_narwhals_dtype
+from narwhals._compliant.window import WindowInputs
 from narwhals._utils import (
     Implementation,
     ValidateBackendVersion,
@@ -94,10 +96,10 @@ class DaftLazyFrame(
 
     def _evaluate_window_expr(
         self,
-        expr: SQLExpr[Self, NativeExprT],
+        expr: DaftExpr,
         /,
-        window_inputs: WindowInputs[NativeExprT],
-    ) -> NativeExprT:
+        window_inputs: WindowInputs[Expression],
+    ) -> Expression:
         result = expr.window_function(self, window_inputs)
         if len(result) != 1:  # pragma: no cover
             msg = "multi-output expressions not allowed in this context"
