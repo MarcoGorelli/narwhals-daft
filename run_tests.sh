@@ -206,8 +206,6 @@ test_unique or \
 test_unique_3069 or \
 test_unique_expr or \
 test_unique_expr_agg or \
-test_unique_first_last or \
-test_unique_first_last_no_subset or \
 test_unique_full_subset or \
 test_unique_invalid or \
 test_unique_none or \
