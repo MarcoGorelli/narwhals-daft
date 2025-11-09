@@ -28,7 +28,6 @@ test_clip_expr_expressified or \
 test_coalesce_multi_output or \
 test_coalesce_numeric or \
 test_coalesce_strings or \
-test_collect_empty or \
 test_collect_with_kwargs or \
 test_concat_str or \
 test_concat_str_with_lit or \
@@ -116,9 +115,6 @@ test_lazy_rank_expr or \
 test_lazy_rank_expr_desc or \
 test_left_to_right_broadcasting or \
 test_len_expr or \
-test_lit or \
-test_lit_operation_in_with_columns or \
-test_map_after_alias or \
 test_matches or \
 test_maxh or \
 test_maxh_all or \
@@ -212,7 +208,6 @@ test_str_to_uppercase or \
 test_str_zfill or \
 test_string or \
 test_subtract_expr or \
-test_suffix_after_alias or \
 test_sumh or \
 test_sumh_aggregations or \
 test_sumh_all or \
@@ -230,8 +225,6 @@ test_to_datetime or \
 test_to_datetime_infer_fmt or \
 test_to_datetime_infer_fmt_from_date or \
 test_to_datetime_tz_aware or \
-test_to_lowercase_after_alias or \
-test_to_uppercase_after_alias or \
 test_top_k or \
 test_top_k_by_multiple or \
 test_top_level_len or \
