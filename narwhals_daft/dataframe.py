@@ -3,13 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Literal, cast
 
 import daft
-from daft import Expression
 import daft.exceptions
 import daft.functions
-from narwhals.exceptions import MultiOutputExpressionError
-
-from narwhals_daft.utils import evaluate_exprs, lit, native_to_narwhals_dtype
-from narwhals._compliant.window import WindowInputs
+from daft import Expression
 from narwhals._utils import (
     Implementation,
     ValidateBackendVersion,
@@ -18,22 +14,29 @@ from narwhals._utils import (
     not_implemented,
     parse_columns_to_drop,
 )
-from narwhals.exceptions import ColumnNotFoundError, DuplicateError
+from narwhals.exceptions import (
+    ColumnNotFoundError,
+    DuplicateError,
+    MultiOutputExpressionError,
+)
 from narwhals.typing import CompliantLazyFrame
+
+from narwhals_daft.utils import evaluate_exprs, lit, native_to_narwhals_dtype
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Mapping, Sequence
     from types import ModuleType
 
-    from typing_extensions import Self, TypeIs
-
     from narwhals._compliant.typing import CompliantDataFrameAny
-    from narwhals_daft.expr import DaftExpr
-    from narwhals_daft.namespace import DaftNamespace
+    from narwhals._compliant.window import WindowInputs
     from narwhals._utils import _LimitedContext
     from narwhals.dataframe import LazyFrame
     from narwhals.dtypes import DType
     from narwhals.typing import JoinStrategy
+    from typing_extensions import Self, TypeIs
+
+    from narwhals_daft.expr import DaftExpr
+    from narwhals_daft.namespace import DaftNamespace
 
 
 class DaftLazyFrame(
@@ -95,10 +98,7 @@ class DaftLazyFrame(
         return result[0]
 
     def _evaluate_window_expr(
-        self,
-        expr: DaftExpr,
-        /,
-        window_inputs: WindowInputs[Expression],
+        self, expr: DaftExpr, /, window_inputs: WindowInputs[Expression]
     ) -> Expression:
         result = expr.window_function(self, window_inputs)
         if len(result) != 1:  # pragma: no cover
@@ -142,7 +142,6 @@ class DaftLazyFrame(
 
         if backend is Implementation.POLARS:
             import polars as pl  # ignore-banned-import
-
             from narwhals._polars.dataframe import PolarsDataFrame
 
             return PolarsDataFrame(
@@ -280,7 +279,7 @@ class DaftLazyFrame(
         )
 
         rename_mapping = {
-            **dict(zip(right_on_, left_on_)),
+            **dict(zip(right_on_, left_on_, strict=True)),
             **{
                 colname: f"{colname}{suffix}" if colname in left_columns else colname
                 for colname in right_cols_to_rename

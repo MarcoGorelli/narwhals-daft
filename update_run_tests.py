@@ -1,12 +1,17 @@
+from __future__ import annotations
+
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 
-def update_run_tests():
+def update_run_tests() -> None:
     # Run pytest to get failing tests
     result = subprocess.run(
         [
+            sys.executable,
+            "-m",
             "pytest",
             "narwhals/tests",
             "-p",
@@ -18,6 +23,7 @@ def update_run_tests():
             "--constructors",
             "daft",
         ],
+        check=False,
         capture_output=True,
         text=True,
     )
@@ -32,7 +38,7 @@ def update_run_tests():
 
     # Read the current run_tests.sh
     run_tests_path = Path("run_tests.sh")
-    content = run_tests_path.read_text()
+    content = run_tests_path.read_text(encoding="utf-8")
 
     # Replace the TESTS_THAT_NEED_FIX content
     new_content = re.sub(
@@ -43,7 +49,7 @@ def update_run_tests():
     )
 
     # Write back to run_tests.sh
-    run_tests_path.write_text(new_content)
+    run_tests_path.write_text(new_content, encoding="utf-8")
 
     print("Updated run_tests.sh with new failing tests")
 

@@ -6,6 +6,7 @@ build-backend = "hatchling.build"
 name = "narwhals_daft"
 version = "0.1.0"
 dependencies = ["daft>=0.5.18"]
+requires-python = ">=3.10"
 
 [project.entry-points.'narwhals.plugins']
 narwhals-daft = 'narwhals_daft'
@@ -47,3 +48,84 @@ ignore = [
   "../../../**/Lib",      # stdlib
   "../../../**/typeshed*" # typeshed-fallback
 ]
+
+[tool.ruff.lint]
+preview = true
+explicit-preview-rules = true
+
+extend-safe-fixes = [
+  "C419",    # unnecessary-comprehension-in-call
+  "C420",    # unnecessary-dict-comprehension-for-iterable
+  "EM101",   # raw-string-in-exception
+  "EM102",   # f-string-in-exception
+  "PLR6201", # literal-membership
+  "TC",      # flake8-type-checking
+  "UP",      # pyupgrade
+  "PLW1514", # unspecified-encoding
+]
+extend-select = [
+  "PLR0914", # too-many-locals
+  "PLR0916", # too-many-boolean-expressions
+  "PLR1702", # too-many-nested-blocks
+  "PLR6201", # literal-membership
+  "PLW1514", # unspecified-encoding
+]
+select = ["ALL"]
+ignore = [
+  "A001",    # builtin-variable-shadowing
+  "A004",    # builtin-import-shadowing
+  "ARG002",  # unused-method-argument
+  "ANN401",  # any-type
+  "COM812",  # missing-trailing-comma
+  "D100",    # undocumented-public-module
+  "D101",    # undocumented-public-class
+  "D102",    # undocumented-public-method
+  "D103",    # undocumented-public-function
+  "D104",    # undocumented-public-package
+  "D105",    # undocumented-magic-method
+  "D107",    # undocumented-public-init
+  "DTZ001",  # call-datetime-without-tzinfo
+  "E501",    # line-too-long
+  "FBT003",  # boolean-positional-value-in-call (We enforce at definition site when it is a flag, not a value (e.g. `lit(False)`))
+  "FIX",     # flake8-fixme
+  "PD010",   # pandas-use-of-dot-pivot-or-unstack
+  "PLC0415", # `import` should be at the top-level of a file
+  "PLR0913", # too-many-arguments
+  "PLR2004", # magic-value-comparison
+  "PLW1641", # Object does not implement `__hash__` method
+  "SLF001",  # private-member-access
+  "TD002",   # missing-todo-author
+  "TD003",   # missing-todo-link
+  "TD004",   # missing-todo-colon
+]
+
+[tool.ruff.lint.flake8-builtins]
+builtins-ignorelist = ["format"]
+
+[tool.ruff.lint.pep8-naming]
+extend-ignore-names = [
+  "Series", 
+  "DataFrame", 
+  "_Window", 
+  "F", 
+  "_F",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"update_run_tests.py" = ['S603', 'T201']
+"utils/bump_version.py" = ["S603", "S607"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.pylint]
+max-nested-blocks = 4
+
+[tool.ruff.lint.isort]
+required-imports = ["from __future__ import annotations"]
+combine-as-imports = true
+split-on-trailing-comma = false
+
+[tool.ruff.format]
+docstring-code-format = true
+skip-magic-trailing-comma = true

@@ -2,35 +2,35 @@ from __future__ import annotations
 
 import operator
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Callable, cast
+from typing import TYPE_CHECKING, Any, cast
 
-from daft import coalesce, col, lit, Window
-
+from daft import Window, coalesce, col, lit
 from narwhals._compliant import LazyExpr
-from narwhals._compliant.window import WindowInputs  # todo: make public?
-from narwhals_daft.utils import narwhals_to_native_dtype
+from narwhals._compliant.window import WindowInputs  # TODO: make public?
 from narwhals._expression_parsing import (
     combine_alias_output_names,
     combine_evaluate_output_names,
 )
 from narwhals._utils import Implementation, not_implemented
 
+from narwhals_daft.utils import narwhals_to_native_dtype
+
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Callable, Iterable, Sequence
 
     from daft import Expression
-    from typing_extensions import Self, TypeIs
-
     from narwhals._compliant.typing import (
         AliasNames,
         EvalNames,
         EvalSeries,
         WindowFunction,
     )
-    from narwhals_daft.dataframe import DaftLazyFrame
-    from narwhals_daft.namespace import DaftNamespace
     from narwhals._utils import Version, _LimitedContext
     from narwhals.dtypes import DType
+    from typing_extensions import Self, TypeIs
+
+    from narwhals_daft.dataframe import DaftLazyFrame
+    from narwhals_daft.namespace import DaftNamespace
 
     DaftWindowFunction = WindowFunction[DaftLazyFrame, Expression]
 
@@ -254,13 +254,13 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         invert = cast("Callable[..., Expression]", operator.invert)
         return self._with_elementwise(invert)
 
-    def __add__(self, other) -> Self:
+    def __add__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr + other), other)
 
-    def __sub__(self, other) -> Self:
+    def __sub__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (expr - other), other)
 
-    def __rsub__(self, other) -> Self:
+    def __rsub__(self, other: Self) -> Self:
         return self._with_binary(lambda expr, other: (other - expr), other)
 
     def __mul__(self, other: Self) -> Self:
@@ -325,13 +325,13 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
 
     def all(self) -> Self:
         def f(expr: Expression) -> Expression:
-            return coalesce(expr.bool_and(), lit(True))  # noqa: FBT003
+            return coalesce(expr.bool_and(), lit(True))
 
         return self._with_callable(f)
 
     def any(self) -> Self:
         def f(expr: Expression) -> Expression:
-            return coalesce(expr.bool_or(), lit(False))  # noqa: FBT003
+            return coalesce(expr.bool_or(), lit(False))
 
         return self._with_callable(f)
 

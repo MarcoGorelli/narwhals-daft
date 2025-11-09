@@ -1,7 +1,6 @@
 #!/bin/bash
 
 TESTS_THAT_NEED_FIX=" \
-test_add or \
 test_all_ignore_nulls or \
 test_all_kind_of_aggs or \
 test_allh or \
@@ -233,7 +232,6 @@ test_len_expr or \
 test_lit or \
 test_lit or \
 test_lit or \
-test_lit_operation_in_select or \
 test_lit_operation_in_with_columns or \
 test_lit_operation_in_with_columns or \
 test_map_after_alias or \
