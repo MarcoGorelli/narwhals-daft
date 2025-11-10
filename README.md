@@ -1,63 +1,57 @@
 # Narwhals-daft
 
-Narwhals extension for [Daft](https://github.com/Eventual-Inc/Daft).
+Narwhals plugin for [Daft](https://github.com/Eventual-Inc/Daft)!
 
-Work-in-progress.
+See [Narwhals](https://narwhals-dev.github.io/narwhals/) for Narwhals documentation and API.
+This plugin allows Narwhals to accept Daft inputs (in addition to all the inputs it already
+accepts).
 
 ## Installation
 
-```
+```console
 pip install narwhals-daft
 ```
 
-## Contributing
+## Example
 
-Clone this repository with the `--recursive` flag.
+```py
+import daft
+import narwhals as nw
+from narwhals.typing import IntoFrameT
 
-```console
-git clone git@github.com:narwhals-dev/narwhals-daft.git narwhals-daft-dev --recursive 
-cd narwhals-daft-dev
+data = {
+    "animal": [
+        "penguin",
+        "dodo",
+        "beluga",
+        "narwhal",
+        "cat",
+        "dog",
+        "hamster",
+        "falcon",
+    ],
+    "awesomeness": [7, 5, 8, 15, 5, 4, 3, 9],
+}
+df_daft = daft.from_pydict(data)
+df = nw.from_native(df_daft)
+result = df.with_columns(
+    relative_awesomeness=nw.col("awesomeness") / nw.col("awesomeness").max()
+).filter(nw.col("relative_awesomeness") > 0.5)
+print(result.to_native().collect())
 ```
 
 ```console
-uv pip install -e . --group tests
+╭─────────┬─────────────┬──────────────────────╮
+│ animal  ┆ awesomeness ┆ relative_awesomeness │
+│ ---     ┆ ---         ┆ ---                  │
+│ String  ┆ Int64       ┆ Float64              │
+╞═════════╪═════════════╪══════════════════════╡
+│ beluga  ┆ 8           ┆ 0.5333333333333333   │
+├╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ narwhal ┆ 15          ┆ 1                    │
+├╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ falcon  ┆ 9           ┆ 0.6                  │
+╰─────────┴─────────────┴──────────────────────╯
+
+(Showing first 3 of 3 rows)
 ```
-
-and also fetch and install Narwhals as a git submodule:
-
-```console
-git submodule update --init --recursive
-uv pip install -e narwhals
-```
-
-To run the tests:
-
-```console
-. run_tests.sh
-```
-
-Any additional arguments you pass will be passed down to pytest, e.g.
-
-```console
-. run_tests.sh -x
-```
-
-To run type-checking:
-
-```console
-pyright narwhals_daft
-```
-
-### Updating the Narwhals submodule
-
-Run
-
-```console
-cd narwhals
-git pull origin main --ff-only
-cd ..
-git add narwhals
-git commit -a -m 'update narwhals <from SHA>...<to SHA>'
-```
-
-and open a pull request.
