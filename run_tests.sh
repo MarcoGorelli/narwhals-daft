@@ -73,6 +73,7 @@ test_lazy_rank_expr or \
 test_lazy_rank_expr_desc or \
 test_left_to_right_broadcasting or \
 test_len_expr or \
+test_mapping_key_not_in_expr or \
 test_median_expr or \
 test_median_expr_raises_on_str or \
 test_missing_columns or \
