@@ -41,11 +41,7 @@ pyright narwhals_daft
 Run
 
 ```console
-cd narwhals
-git pull origin main --ff-only
-cd ..
-git add narwhals
-git commit -a -m 'update narwhals <from SHA>...<to SHA>'
+. utils/submodule_update.sh
 ```
 
-and open a pull request.
+Check that tests still run, update `run_tests.sh` if necessary, and open a PR.

@@ -29,9 +29,9 @@ jobs:
           cache-dependency-glob: "pyproject.toml"
       - name: install-reqs
         run: |
-            uv pip install -e . --group tests --system
             git submodule update --init --recursive
             uv pip install -e narwhals --system
+            uv pip install -e . --group tests --system
       - name: show-deps
         run: uv pip freeze
       - name: Run pytest
@@ -56,9 +56,9 @@ jobs:
           cache-dependency-glob: "pyproject.toml"
       - name: install-reqs
         run: |
-            uv pip install -e . --group typing --system
             git submodule update --init --recursive
             uv pip install -e narwhals --system
+            uv pip install -e . --group typing --system
       - name: show-deps
         run: uv pip freeze
       - name: Run pyright
