@@ -1,7 +1,6 @@
 #!/bin/bash
 
 TESTS_THAT_NEED_FIX=" \
-test_all_kind_of_aggs or \
 test_arithmetic_expr or \
 test_arithmetic_expr_left_literal or \
 test_cast or \
@@ -32,7 +31,6 @@ test_datetime or \
 test_datetime_attributes or \
 test_diff_lazy or \
 test_diff_lazy_grouped or \
-test_double_same_aggregation or \
 test_drop_nulls_agg or \
 test_dt_to_string_expr or \
 test_dt_to_string_iso_local_date_expr or \
@@ -48,7 +46,6 @@ test_explode_single_col or \
 test_expr_binary or \
 test_expr_floordiv_by_zero or \
 test_expr_rfloordiv_by_zero or \
-test_fancy_functions or \
 test_fill_nan or \
 test_fill_null_limits or \
 test_fill_null_strategies_with_limit_as_none or \
@@ -62,20 +59,7 @@ test_format or \
 test_get_expr or \
 test_get_field_expr or \
 test_group_by_categorical or \
-test_group_by_depth_1_agg or \
-test_group_by_depth_1_agg_bool_ops or \
-test_group_by_depth_1_std_var or \
-test_group_by_expr or \
-test_group_by_len_1_column or \
 test_group_by_median or \
-test_group_by_multiple_keys or \
-test_group_by_n_unique_w_missing or \
-test_group_by_nw_all or \
-test_group_by_selector or \
-test_group_by_shift_raises or \
-test_group_by_simple_named or \
-test_group_by_simple_unnamed or \
-test_group_by_window or \
 test_is_close_expr_with_expr or \
 test_is_close_expr_with_scalar or \
 test_is_duplicated_expr or \
@@ -93,8 +77,6 @@ test_joinasof_by or \
 test_joinasof_numeric or \
 test_joinasof_suffix or \
 test_joinasof_time or \
-test_key_with_nulls or \
-test_key_with_nulls_ignored or \
 test_kurtosis_expr or \
 test_lazy_cum_prod_grouped or \
 test_lazy_rank_expr or \
@@ -109,13 +91,11 @@ test_mode_expr_keep_any or \
 test_mode_group_by_multimodal or \
 test_mode_group_by_multiple_cols or \
 test_mode_group_by_unimodal or \
-test_multi_column_expansion or \
 test_n_unique_over or \
 test_namespace_from_native_object or \
 test_nan or \
 test_nan_non_float or \
 test_native_namespace_frame or \
-test_no_agg or \
 test_offset_by or \
 test_offset_by_dst or \
 test_offset_by_invalid_interval or \
@@ -126,18 +106,14 @@ test_over_pushdown or \
 test_over_quantile or \
 test_over_std_var or \
 test_package_version or \
-test_pandas_datetime_ignored_time_unit_warns or \
 test_parse_weight or \
 test_pipe_expr or \
 test_q1 or \
-test_q1_w_generic_funcs or \
-test_q1_w_pandas_agg_generic_path or \
 test_quantile_expr or \
 test_rank_expr_in_over_context or \
 test_rank_expr_in_over_desc or \
 test_rank_with_order_by or \
 test_rank_with_order_by_and_partition_by or \
-test_renaming_edge_case or \
 test_replace_strict_expr_basic or \
 test_replace_strict_expr_with_default or \
 test_replace_strict_non_full or \
@@ -149,17 +125,10 @@ test_replace_time_zone_none or \
 test_right_arithmetic_expr or \
 test_rolling_std_expr_lazy_grouped or \
 test_rolling_std_expr_lazy_ungrouped or \
-test_rolling_var_expr_lazy_grouped or \
-test_rolling_var_expr_lazy_ungrouped or \
-test_scan_csv or \
-test_scan_parquet or \
-test_schema_from_pandas_like or \
-test_schema_from_pandas_like_pyarrow or \
 test_select_duplicates or \
 test_set_ops or \
 test_shift_lazy or \
 test_shift_lazy_grouped or \
-test_sink_parquet or \
 test_skew_expr or \
 test_split_list_get or \
 test_sqrt_expr or \
@@ -195,7 +164,6 @@ test_to_datetime_infer_fmt_from_date or \
 test_to_datetime_tz_aware or \
 test_top_k or \
 test_top_k_by_multiple or \
-test_top_level_len or \
 test_truncate or \
 test_truncate_invalid_interval or \
 test_truncate_invalid_multiple or \

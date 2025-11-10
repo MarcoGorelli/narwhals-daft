@@ -6,11 +6,11 @@ Work-in-progress.
 
 ## Installation from source
 
-Clone this repository with the `--recursive` flag. This installs Narwhals as a git
-submodule.
+Clone this repository with the `--recursive` flag.
 
 ```console
-git clone --recursive <project url>
+git clone git@github.com:narwhals-dev/narwhals-daft.git narwhals-daft-dev --recursive 
+cd narwhals-daft-dev
 ```
 
 ```console
@@ -48,7 +48,7 @@ Run
 
 ```console
 cd narwhals
-git pull origin main
+git pull origin main --ff-only
 cd ..
 git add narwhals
 git commit -a -m 'update narwhals <from SHA>...<to SHA>'

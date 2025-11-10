@@ -83,6 +83,19 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
             window = window.rows_between(rows_start, Window.unbounded_following)
         return expr.over(window)
 
+    def _is_multi_output_unnamed(self) -> bool:
+        """Return `True` for multi-output aggregations without names.
+
+        For example, column `'a'` only appears in the output as a grouping key:
+
+            df.group_by('a').agg(nw.all().sum())
+
+        It does not get included in:
+
+            nw.all().sum().
+        """
+        return self._metadata.expansion_kind.is_multi_unnamed()
+
     @property
     def window_function(self) -> WindowFunction[DaftLazyFrame, Expression]:
         def default_window_func(

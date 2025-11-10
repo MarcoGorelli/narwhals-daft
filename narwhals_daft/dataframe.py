@@ -22,6 +22,7 @@ from narwhals.exceptions import (
 )
 from narwhals.typing import CompliantLazyFrame
 
+from narwhals_daft.group_by import DaftLazyGroupBy
 from narwhals_daft.utils import evaluate_exprs, lit, native_to_narwhals_dtype
 
 if TYPE_CHECKING:
@@ -359,10 +360,14 @@ class DaftLazyFrame(
             self.native.select(row_index_expr.alias(name), *self.columns)
         )
 
+    def group_by(
+        self, keys: Sequence[str] | Sequence[DaftExpr], *, drop_null_keys: bool
+    ) -> DaftLazyGroupBy:
+        return DaftLazyGroupBy(self, keys, drop_null_keys=drop_null_keys)
+
     gather_every = not_implemented.deprecated(
         "`LazyFrame.gather_every` is deprecated and will be removed in a future version."
     )
-    group_by = not_implemented()
     join_asof = not_implemented()
     tail = not_implemented.deprecated(
         "`LazyFrame.tail` is deprecated and will be removed in a future version."
