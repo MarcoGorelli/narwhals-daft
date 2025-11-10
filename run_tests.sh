@@ -62,17 +62,7 @@ test_group_by_categorical or \
 test_group_by_median or \
 test_is_close_expr_with_expr or \
 test_is_close_expr_with_scalar or \
-test_is_duplicated_expr or \
-test_is_duplicated_w_nulls_expr or \
 test_is_finite_expr or \
-test_is_first_distinct_expr_lazy or \
-test_is_first_distinct_expr_lazy_grouped or \
-test_is_last_distinct_expr_lazy or \
-test_is_last_distinct_expr_lazy_grouped or \
-test_is_last_distinct_expr_lazy_grouped_nulls or \
-test_is_unique_expr or \
-test_is_unique_expr_grouped or \
-test_is_unique_w_nulls_expr or \
 test_joinasof_by or \
 test_joinasof_numeric or \
 test_joinasof_suffix or \
@@ -108,7 +98,6 @@ test_over_std_var or \
 test_package_version or \
 test_parse_weight or \
 test_pipe_expr or \
-test_q1 or \
 test_quantile_expr or \
 test_rank_expr_in_over_context or \
 test_rank_expr_in_over_desc or \
