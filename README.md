@@ -48,7 +48,7 @@ Run
 
 ```console
 cd narwhals
-git pull origin main
+git pull origin main --ff-only
 cd ..
 git add narwhals
 git commit -a -m 'update narwhals <from SHA>...<to SHA>'
