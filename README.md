@@ -4,7 +4,13 @@ Narwhals extension for [Daft](https://github.com/Eventual-Inc/Daft).
 
 Work-in-progress.
 
-## Installation from source
+## Installation
+
+```
+pip install narwhals-daft
+```
+
+## Contributing
 
 Clone this repository with the `--recursive` flag.
 
@@ -42,7 +48,7 @@ To run type-checking:
 pyright narwhals_daft
 ```
 
-## Updating the Narwhals submodule
+### Updating the Narwhals submodule
 
 Run
 
