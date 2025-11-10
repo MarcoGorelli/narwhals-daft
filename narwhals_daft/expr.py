@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import operator
+import operator as op
 from typing import TYPE_CHECKING, Any, Literal, cast
 
 import daft.functions as F
@@ -359,7 +359,7 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         return self._with_binary(lambda expr, other: (expr | other), other=other)
 
     def __invert__(self) -> Self:
-        invert = cast("Callable[..., Expression]", operator.invert)
+        invert = cast("Callable[..., Expression]", op.invert)
         return self._with_elementwise(invert)
 
     def __add__(self, other: Self) -> Self:
@@ -653,6 +653,63 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
             )
         )
 
+    def is_first_distinct(self) -> Self:
+        def func(
+            df: DaftLazyFrame, inputs: WindowInputs[Expression]
+        ) -> Sequence[Expression]:
+            descending = list(extend_bool(False, len(inputs.order_by)))
+            return [
+                self._window_expression(
+                    F.row_number(),
+                    (*inputs.partition_by, expr),
+                    inputs.order_by,
+                    descending=descending,
+                )
+                == lit(1)
+                for expr in self(df)
+            ]
+
+        return self._with_window_function(func)
+
+    def is_last_distinct(self) -> Self:
+        def func(
+            df: DaftLazyFrame, inputs: WindowInputs[Expression]
+        ) -> Sequence[Expression]:
+            descending = list(extend_bool(True, len(inputs.order_by)))
+            nulls_first = list(extend_bool(False, len(inputs.order_by)))
+            return [
+                self._window_expression(
+                    F.row_number(),
+                    (*inputs.partition_by, expr),
+                    inputs.order_by,
+                    descending=descending,
+                    nulls_first=nulls_first,
+                )
+                == lit(1)
+                for expr in self(df)
+            ]
+
+        return self._with_window_function(func)
+
+    def is_unique(self) -> Self:
+        def _is_unique(expr: Expression, *partition_by: str | Expression) -> Expression:
+            return self._window_expression(
+                expr.count(mode="all"), (expr, *partition_by)
+            ) == lit(1)
+
+        def _unpartitioned_is_unique(expr: Expression) -> Expression:
+            return _is_unique(expr)
+
+        def _partitioned_is_unique(
+            df: DaftLazyFrame, inputs: WindowInputs[Expression]
+        ) -> Sequence[Expression]:
+            assert not inputs.order_by  # noqa: S101
+            return [_is_unique(expr, *inputs.partition_by) for expr in self(df)]
+
+        return self._with_callable(_unpartitioned_is_unique)._with_window_function(
+            _partitioned_is_unique
+        )
+
     clip_lower = not_implemented()
     clip_upper = not_implemented()
     diff = not_implemented()
@@ -661,9 +718,6 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     filter = not_implemented()
     ewm_mean = not_implemented()
     exp = not_implemented()
-    is_first_distinct = not_implemented()
-    is_last_distinct = not_implemented()
-    is_unique = not_implemented()
     kurtosis = not_implemented()
     rank = not_implemented()
     map_batches = not_implemented()
