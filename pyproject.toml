@@ -33,6 +33,16 @@ typing = [
   "pyright",
 ]
 
+[tool.hatch.build.targets.sdist]
+include = [
+  "narwhals_daft/*",
+]
+
+[tool.hatch.build.targets.wheel]
+include = [
+  "narwhals_daft/*",
+]
+
 [tool.pyright]
 pythonPlatform = "All"
 reportMissingTypeArgument = "error"
