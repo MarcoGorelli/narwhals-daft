@@ -113,7 +113,7 @@ extend-ignore-names = [
 
 [tool.ruff.lint.per-file-ignores]
 "update_run_tests.py" = ['S603', 'T201']
-"bump_version.py" = ["S603", "S607", "T201"]
+"utils/*.py" = ["S603", "S607", "T201"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
