@@ -21,13 +21,13 @@ uv pip install -e narwhals
 To run the tests:
 
 ```console
-. run_tests.sh
+. ./run_tests.sh
 ```
 
 Any additional arguments you pass will be passed down to pytest, e.g.
 
 ```console
-. run_tests.sh -x
+. ./run_tests.sh -x
 ```
 
 To run type-checking:
