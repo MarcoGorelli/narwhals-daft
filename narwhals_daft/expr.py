@@ -13,6 +13,7 @@ from narwhals._expression_parsing import (
 )
 from narwhals._utils import Implementation, not_implemented
 
+from narwhals_daft.expr_name import ExprNameNamespace
 from narwhals_daft.utils import evaluate_literal, extend_bool, narwhals_to_native_dtype
 
 if TYPE_CHECKING:
@@ -721,6 +722,10 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
             _partitioned_is_unique
         )
 
+    @property
+    def name(self) -> ExprNameNamespace:
+        return ExprNameNamespace(self)
+
     clip_lower = not_implemented()
     clip_upper = not_implemented()
     diff = not_implemented()
@@ -749,5 +754,4 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     dt = not_implemented()  # pyright: ignore[reportAssignmentType]
     cat = not_implemented()  # pyright: ignore[reportAssignmentType]
     list = not_implemented()  # pyright: ignore[reportAssignmentType]
-    name = not_implemented()  # pyright: ignore[reportAssignmentType]
     struct = not_implemented()  # pyright: ignore[reportAssignmentType]
