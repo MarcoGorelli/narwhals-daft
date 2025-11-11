@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, Mapping, Sequence
     from types import ModuleType
 
-    from narwhals._compliant.typing import CompliantDataFrameAny
+    from narwhals._compliant import CompliantFrame
     from narwhals._compliant.window import WindowInputs
     from narwhals._utils import _LimitedContext
     from narwhals.dataframe import LazyFrame
@@ -120,7 +120,7 @@ class DaftLazyFrame(
 
     def collect(
         self, backend: ModuleType | Implementation | str | None, **kwargs: Any
-    ) -> CompliantDataFrameAny:
+    ) -> CompliantFrame[Any, Any, Any]:
         if backend is None or backend is Implementation.PYARROW:
             from narwhals._arrow.dataframe import ArrowDataFrame
 
