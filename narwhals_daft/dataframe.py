@@ -30,14 +30,13 @@ if TYPE_CHECKING:
     from types import ModuleType
 
     from narwhals._compliant.typing import CompliantDataFrameAny
-    from narwhals._compliant.window import WindowInputs
     from narwhals._utils import _LimitedContext
     from narwhals.dataframe import LazyFrame
     from narwhals.dtypes import DType
     from narwhals.typing import JoinStrategy
     from typing_extensions import Self, TypeIs
 
-    from narwhals_daft.expr import DaftExpr
+    from narwhals_daft.expr import DaftExpr, WindowInputs
     from narwhals_daft.namespace import DaftNamespace
 
 
@@ -100,7 +99,7 @@ class DaftLazyFrame(
         return result[0]
 
     def _evaluate_window_expr(
-        self, expr: DaftExpr, /, window_inputs: WindowInputs[Expression]
+        self, expr: DaftExpr, /, window_inputs: WindowInputs
     ) -> Expression:
         result = expr.window_function(self, window_inputs)
         if len(result) != 1:  # pragma: no cover

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from narwhals.dtypes import DType
 
     from narwhals_daft.dataframe import DaftLazyFrame
-    from narwhals_daft.expr import DaftWindowFunction
+    from narwhals_daft.expr import WindowFunction
 
 
 class DaftSelectorNamespace(CompliantSelectorNamespace["DaftLazyFrame", "Expression"]):
@@ -33,10 +33,8 @@ class DaftSelectorNamespace(CompliantSelectorNamespace["DaftLazyFrame", "Express
         yield from zip(self._iter_columns(df), df.schema.values(), strict=True)
 
 
-class DaftSelector(  # type: ignore[misc]
-    CompliantSelector["DaftLazyFrame", "Expression"], DaftExpr
-):
-    _window_function: DaftWindowFunction | None = None
+class DaftSelector(CompliantSelector["DaftLazyFrame", "Expression"], DaftExpr):
+    _window_function: WindowFunction | None = None
 
     def _to_expr(self) -> DaftExpr:
         return DaftExpr(

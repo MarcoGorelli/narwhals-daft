@@ -19,11 +19,12 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from daft import DataFrame, Expression
-    from narwhals._compliant.window import WindowInputs
     from narwhals._utils import Version
     from narwhals.dtypes import DType
     from narwhals.typing import ConcatMethod
     from typing_extensions import TypeIs
+
+    from narwhals_daft.expr import WindowInputs
 
 
 class DaftNamespace(CompliantNamespace[DaftLazyFrame, DaftExpr]):
@@ -57,7 +58,7 @@ class DaftNamespace(CompliantNamespace[DaftLazyFrame, DaftExpr]):
             return [lit(value)]
 
         def window_func(
-            df: DaftLazyFrame, _window_inputs: WindowInputs[Expression]
+            df: DaftLazyFrame, _window_inputs: WindowInputs
         ) -> list[Expression]:
             return func(df)
 
