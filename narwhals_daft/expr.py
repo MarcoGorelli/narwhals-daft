@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 
 import daft.functions as F
 from daft import Window, col, lit
-from narwhals._compliant import LazyExpr
+from narwhals._compliant import CompliantExpr
 from narwhals._compliant.window import WindowInputs  # TODO: make public?
 from narwhals._expression_parsing import (
     combine_alias_output_names,
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     DaftWindowFunction = WindowFunction[DaftLazyFrame, Expression]
 
 
-class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
+class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     _implementation = Implementation.UNKNOWN
 
     def __init__(
@@ -205,6 +205,17 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     @classmethod
     def _alias_native(cls, expr: Expression, name: str) -> Expression:
         return expr.alias(name)
+
+    def alias(self, name: str) -> Self:
+        def fn(names: Sequence[str]) -> Sequence[str]:
+            if len(names) != 1:
+                msg = (
+                    f"Expected function with single output, found output names: {names}"
+                )
+                raise ValueError(msg)
+            return [name]
+
+        return self._with_alias_output_names(fn)
 
     @classmethod
     def from_column_names(
@@ -738,4 +749,5 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     dt = not_implemented()  # pyright: ignore[reportAssignmentType]
     cat = not_implemented()  # pyright: ignore[reportAssignmentType]
     list = not_implemented()  # pyright: ignore[reportAssignmentType]
+    name = not_implemented()  # pyright: ignore[reportAssignmentType]
     struct = not_implemented()  # pyright: ignore[reportAssignmentType]

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from itertools import chain
 from typing import TYPE_CHECKING
 
-from narwhals._compliant.group_by import CompliantGroupBy, ParseKeysGroupBy
+from narwhals._compliant.group_by import CompliantGroupBy
+from narwhals._utils import is_sequence_of
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
@@ -13,10 +15,74 @@ if TYPE_CHECKING:
     from narwhals_daft.expr import DaftExpr
 
 
-class DaftLazyGroupBy(
-    ParseKeysGroupBy["DaftLazyFrame", "DaftExpr"],
-    CompliantGroupBy["DaftLazyFrame", "DaftExpr"],
-):
+def _evaluate_aliases_single(frame: DaftLazyFrame, expr: DaftExpr) -> Sequence[str]:
+    # NOTE: Ignore intermittent [False Negative]
+    # Argument of type "CompliantFrameT@ImplExpr" cannot be assigned to parameter of type "CompliantFrameT@ImplExpr"
+    #  Type "CompliantFrameT@ImplExpr" is not assignable to type "CompliantFrameT@ImplExpr"
+    names = expr._evaluate_output_names(frame)  # pyright: ignore[reportArgumentType]
+    return alias(names) if (alias := expr._alias_output_names) else names
+
+
+def _evaluate_aliases_many(
+    frame: DaftLazyFrame, exprs: Iterable[DaftExpr], /
+) -> list[str]:
+    it = (_evaluate_aliases_single(frame, expr) for expr in exprs)
+    return list(chain.from_iterable(it))
+
+
+class ParseKeysGroupBy(CompliantGroupBy["DaftLazyFrame", "DaftExpr"]):
+    def _parse_keys(
+        self, compliant_frame: DaftLazyFrame, keys: Sequence[DaftExpr] | Sequence[str]
+    ) -> tuple[DaftLazyFrame, list[str], list[str]]:
+        if is_sequence_of(keys, str):
+            keys_str = list(keys)
+            return compliant_frame, keys_str, keys_str.copy()
+        return self._parse_expr_keys(compliant_frame, keys=keys)
+
+    @staticmethod
+    def _parse_expr_keys(
+        compliant_frame: DaftLazyFrame, keys: Sequence[DaftExpr]
+    ) -> tuple[DaftLazyFrame, list[str], list[str]]:
+        """Parses key expressions to set up `.agg` operation with correct information.
+
+        Since keys are expressions, it's possible to alias any such key to match
+        other dataframe column names.
+
+        In order to match polars behavior and not overwrite columns when evaluating keys:
+
+        - We evaluate what the output key names should be, in order to remap temporary column
+            names to the expected ones, and to exclude those from unnamed expressions in
+            `.agg(...)` context (see https://github.com/narwhals-dev/narwhals/pull/2325#issuecomment-2800004520)
+        - Create temporary names for evaluated key expressions that are guaranteed to have
+            no overlap with any existing column name.
+        - Add these temporary columns to the compliant dataframe.
+        """
+        tmp_name_length = max(len(str(c)) for c in compliant_frame.columns) + 1
+
+        def _temporary_name(key: str) -> str:
+            # 5 is the length of `__tmp`
+            key_str = str(key)  # pandas allows non-string column names :sob:
+            return f"_{key_str}_tmp{'_' * (tmp_name_length - len(key_str) - 5)}"
+
+        keys_aliases = [
+            _evaluate_aliases_single(compliant_frame, expr) for expr in keys
+        ]
+        safe_keys = [
+            # multi-output expression cannot have duplicate names, hence it's safe to suffix
+            key.name.map(_temporary_name)
+            if (metadata := key._metadata) and metadata.expansion_kind.is_multi_output()
+            # otherwise it's single named and we can use Expr.alias
+            else key.alias(_temporary_name(new_names[0]))
+            for key, new_names in zip(keys, keys_aliases, strict=True)
+        ]
+        return (
+            compliant_frame.with_columns(*safe_keys),
+            _evaluate_aliases_many(compliant_frame, safe_keys),
+            list(chain.from_iterable(keys_aliases)),
+        )
+
+
+class DaftLazyGroupBy(ParseKeysGroupBy, CompliantGroupBy["DaftLazyFrame", "DaftExpr"]):
     def __init__(
         self,
         df: DaftLazyFrame,
