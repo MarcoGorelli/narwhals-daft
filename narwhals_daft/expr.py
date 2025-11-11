@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 
 import daft.functions as F
 from daft import Window, col, lit
-from narwhals._compliant import LazyExpr
+from narwhals._compliant import CompliantExpr
 from narwhals._compliant.window import WindowInputs  # TODO: make public?
 from narwhals._expression_parsing import (
     combine_alias_output_names,
@@ -13,6 +13,7 @@ from narwhals._expression_parsing import (
 )
 from narwhals._utils import Implementation, not_implemented
 
+from narwhals_daft.expr_name import ExprNameNamespace
 from narwhals_daft.utils import evaluate_literal, extend_bool, narwhals_to_native_dtype
 
 if TYPE_CHECKING:
@@ -35,7 +36,7 @@ if TYPE_CHECKING:
     DaftWindowFunction = WindowFunction[DaftLazyFrame, Expression]
 
 
-class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
+class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     _implementation = Implementation.UNKNOWN
 
     def __init__(
@@ -205,6 +206,17 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
     @classmethod
     def _alias_native(cls, expr: Expression, name: str) -> Expression:
         return expr.alias(name)
+
+    def alias(self, name: str) -> Self:
+        def fn(names: Sequence[str]) -> Sequence[str]:
+            if len(names) != 1:
+                msg = (
+                    f"Expected function with single output, found output names: {names}"
+                )
+                raise ValueError(msg)
+            return [name]
+
+        return self._with_alias_output_names(fn)
 
     @classmethod
     def from_column_names(
@@ -709,6 +721,10 @@ class DaftExpr(LazyExpr["DaftLazyFrame", "Expression"]):
         return self._with_callable(_unpartitioned_is_unique)._with_window_function(
             _partitioned_is_unique
         )
+
+    @property
+    def name(self) -> ExprNameNamespace:
+        return ExprNameNamespace(self)
 
     clip_lower = not_implemented()
     clip_upper = not_implemented()

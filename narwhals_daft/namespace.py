@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 
 import daft
 import daft.functions as F
-from narwhals._compliant.namespace import LazyNamespace
+from narwhals._compliant.namespace import CompliantNamespace
 from narwhals._utils import Implementation, not_implemented
 
 from narwhals_daft.dataframe import DaftLazyFrame
@@ -18,18 +18,22 @@ from narwhals_daft.utils import lit, narwhals_to_native_dtype
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from daft import Expression
+    from daft import DataFrame, Expression
     from narwhals._compliant.window import WindowInputs
     from narwhals._utils import Version
     from narwhals.dtypes import DType
     from narwhals.typing import ConcatMethod
+    from typing_extensions import TypeIs
 
 
-class DaftNamespace(LazyNamespace[DaftLazyFrame, DaftExpr, daft.DataFrame]):
+class DaftNamespace(CompliantNamespace[DaftLazyFrame, DaftExpr]):
     _implementation: Implementation = Implementation.UNKNOWN
 
     def __init__(self, *, version: Version) -> None:
         self._version = version
+
+    def is_native(self, native_object: object) -> TypeIs[DataFrame]:
+        return isinstance(native_object, daft.DataFrame)
 
     def from_native(self, native_object: daft.DataFrame) -> DaftLazyFrame:
         return DaftLazyFrame(native_object, version=self._version)
