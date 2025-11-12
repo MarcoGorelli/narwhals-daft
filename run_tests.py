@@ -38,7 +38,6 @@ TESTS_THAT_NEED_FIX = [
     "test_dt_to_string_iso_local_datetime_expr",
     "test_empty_scalar_reduction_with_columns",
     "test_ends_with",
-    "test_exp_expr",
     "test_explode_invalid_operation_error",
     "test_explode_multiple_cols",
     "test_explode_shape_error",
