@@ -34,25 +34,25 @@ def update_run_tests() -> None:
     )
 
     # Sort and format the test names
-    formatted_tests = " or \\\n".join(sorted(set(failed_tests)))
+    formatted_tests = ",\n    ".join(f'"{t}"' for t in sorted(set(failed_tests)))
 
-    # Read the current run_tests.sh
-    run_tests_path = Path("run_tests.sh")
+    # Read the current run_tests.py
+    run_tests_path = Path("run_tests.py")
     content = run_tests_path.read_text(encoding="utf-8")
 
     # Replace the TESTS_THAT_NEED_FIX content
     new_content = re.sub(
-        r'TESTS_THAT_NEED_FIX=" \\(.*?)"',
-        f'TESTS_THAT_NEED_FIX=" \\\n{formatted_tests} \\\n"',
+        r"TESTS_THAT_NEED_FIX\s*=\s*\[.*?\]",
+        f"TESTS_THAT_NEED_FIX = [\n    {formatted_tests},\n]",
         content,
         flags=re.DOTALL,
     )
 
-    # Write back to run_tests.sh
+    # Write back to run_tests.py
     if new_content != content:
         run_tests_path.write_text(new_content, encoding="utf-8")
 
-        print("Updated run_tests.sh with new failing tests")
+        print("Updated run_tests.py with new failing tests")
     else:
         print("Nothing to update")
 

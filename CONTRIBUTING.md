@@ -7,6 +7,19 @@ git clone git@github.com:narwhals-dev/narwhals-daft.git narwhals-daft-dev --recu
 cd narwhals-daft-dev
 ```
 
+Make a virtual environment and activate it.
+
+```console
+uv venv -p 3.12
+. .venv/bin/activate
+```
+
+Install `pre-commit`.
+```console
+uv pip install pre-commit
+pre-commit install
+```
+
 ```console
 uv pip install -e . --group tests
 ```
@@ -21,13 +34,13 @@ uv pip install -e narwhals
 To run the tests:
 
 ```console
-. run_tests.sh
+python run_tests.py
 ```
 
 Any additional arguments you pass will be passed down to pytest, e.g.
 
 ```console
-. run_tests.sh -x
+python run_tests.py -x
 ```
 
 To run type-checking:
@@ -44,4 +57,4 @@ Run
 . utils/submodule_update.sh
 ```
 
-Check that tests still run, update `run_tests.sh` if necessary, and open a PR.
+Check that tests still run, update `run_tests.py` if necessary, and open a PR.

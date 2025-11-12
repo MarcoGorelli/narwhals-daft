@@ -35,7 +35,7 @@ jobs:
       - name: show-deps
         run: uv pip freeze
       - name: Run pytest
-        run: . run_tests.sh
+        run: python run_tests.py
 
   typing:
     strategy:
