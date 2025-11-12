@@ -13,8 +13,6 @@ test_cast_to_enum_v1 or \
 test_cast_to_enum_vmain or \
 test_categorical or \
 test_ceil_expr or \
-test_clip_expr or \
-test_clip_expr_expressified or \
 test_coalesce_multi_output or \
 test_coalesce_numeric or \
 test_coalesce_strings or \
@@ -35,7 +33,6 @@ test_drop_nulls_agg or \
 test_dt_to_string_expr or \
 test_dt_to_string_iso_local_date_expr or \
 test_dt_to_string_iso_local_datetime_expr or \
-test_duration_attributes or \
 test_empty_scalar_reduction_with_columns or \
 test_ends_with or \
 test_exp_expr or \
