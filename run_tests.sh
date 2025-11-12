@@ -38,7 +38,6 @@ test_dt_to_string_iso_local_datetime_expr or \
 test_duration_attributes or \
 test_empty_scalar_reduction_with_columns or \
 test_ends_with or \
-test_exp_expr or \
 test_explode_invalid_operation_error or \
 test_explode_multiple_cols or \
 test_explode_shape_error or \
