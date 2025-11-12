@@ -583,6 +583,9 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     def log(self, base: float) -> Self:
         return self._with_elementwise(lambda expr: expr.log(base=base))
 
+    def exp(self) -> Self:
+        return self._with_elementwise(lambda expr: expr.exp())
+
     def skew(self) -> Self:
         return self._with_callable(lambda expr: expr.skew())
 
@@ -723,7 +726,6 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     fill_nan = not_implemented()
     filter = not_implemented()
     ewm_mean = not_implemented()
-    exp = not_implemented()
     kurtosis = not_implemented()
     rank = not_implemented()
     map_batches = not_implemented()
