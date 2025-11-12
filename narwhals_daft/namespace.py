@@ -181,4 +181,8 @@ class DaftNamespace(CompliantNamespace[DaftLazyFrame, DaftExpr]):
             func_with_otherwise, then, predicate, otherwise
         )
 
-    coalesce: not_implemented = not_implemented()
+    def coalesce(self, *exprs: DaftExpr) -> DaftExpr:
+        def func(cols: Iterable[Expression]) -> Expression:
+            return daft.functions.coalesce(*cols)
+
+        return self._expr._from_elementwise_horizontal_op(func, *exprs)
