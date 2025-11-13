@@ -582,6 +582,12 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     def round(self, decimals: int) -> Self:
         return self._with_elementwise(lambda _input: _input.round(decimals))
 
+    def floor(self) -> Self:
+        return self._with_elementwise(lambda _input: _input.floor())
+
+    def ceil(self) -> Self:
+        return self._with_elementwise(lambda _input: _input.ceil())
+
     def fill_null(self, value: Self | Any, strategy: Any, limit: int | None) -> Self:
         if strategy is not None:
             msg = "todo"
@@ -747,8 +753,6 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     unique = not_implemented()
     first = not_implemented()
     last = not_implemented()
-    floor = not_implemented()
-    ceil = not_implemented()
 
     # namespaces
     str = not_implemented()  # pyright: ignore[reportAssignmentType]
