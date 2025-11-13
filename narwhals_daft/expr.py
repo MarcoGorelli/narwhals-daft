@@ -603,6 +603,9 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     def exp(self) -> Self:
         return self._with_elementwise(lambda expr: expr.exp())
 
+    def sqrt(self) -> Self:
+        return self._with_elementwise(lambda expr: expr.sqrt())
+
     def skew(self) -> Self:
         return self._with_callable(lambda expr: expr.skew())
 
@@ -766,7 +769,6 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     mode = not_implemented()
     quantile = not_implemented()
     replace_strict = not_implemented()
-    sqrt = not_implemented()
     unique = not_implemented()
     first = not_implemented()
     last = not_implemented()
