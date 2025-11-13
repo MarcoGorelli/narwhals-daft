@@ -582,6 +582,12 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     def round(self, decimals: int) -> Self:
         return self._with_elementwise(lambda _input: _input.round(decimals))
 
+    def floor(self) -> Self:
+        return self._with_elementwise(lambda _input: _input.floor())
+
+    def ceil(self) -> Self:
+        return self._with_elementwise(lambda _input: _input.ceil())
+
     def fill_null(self, value: Self | Any, strategy: Any, limit: int | None) -> Self:
         if strategy is not None:
             msg = "todo"
@@ -596,6 +602,9 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
 
     def exp(self) -> Self:
         return self._with_elementwise(lambda expr: expr.exp())
+
+    def sqrt(self) -> Self:
+        return self._with_elementwise(lambda expr: expr.sqrt())
 
     def skew(self) -> Self:
         return self._with_callable(lambda expr: expr.skew())
@@ -747,6 +756,24 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
 
         return self._with_window_function(func)
 
+    def shift(self, n: int) -> Self:
+        def func(df: DaftLazyFrame, inputs: WindowInputs) -> Sequence[Expression]:
+            window = self._window_expression
+            descending = list(extend_bool(False, len(inputs.order_by)))
+            nulls_first = list(extend_bool(True, len(inputs.order_by)))
+            return [
+                window(
+                    F.lag(expr, n),
+                    inputs.partition_by,
+                    inputs.order_by,
+                    descending=descending,
+                    nulls_first=nulls_first,
+                )
+                for expr in self(df)
+            ]
+
+        return self._with_window_function(func)
+
     @property
     def name(self) -> ExprNameNamespace:
         return ExprNameNamespace(self)
@@ -762,13 +789,9 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     mode = not_implemented()
     quantile = not_implemented()
     replace_strict = not_implemented()
-    shift = not_implemented()
-    sqrt = not_implemented()
     unique = not_implemented()
     first = not_implemented()
     last = not_implemented()
-    floor = not_implemented()
-    ceil = not_implemented()
 
     # namespaces
     str = not_implemented()  # pyright: ignore[reportAssignmentType]
