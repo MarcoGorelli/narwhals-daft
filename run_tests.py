@@ -111,8 +111,6 @@ TESTS_THAT_NEED_FIX = [
     "test_rolling_std_expr_lazy_ungrouped",
     "test_select_duplicates",
     "test_set_ops",
-    "test_shift_lazy",
-    "test_shift_lazy_grouped",
     "test_skew_expr",
     "test_split_list_get",
     "test_sqrt_expr",

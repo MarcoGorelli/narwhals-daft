@@ -732,6 +732,24 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
             _partitioned_is_unique
         )
 
+    def shift(self, n: int) -> Self:
+        def func(df: DaftLazyFrame, inputs: WindowInputs) -> Sequence[Expression]:
+            window = self._window_expression
+            descending = list(extend_bool(False, len(inputs.order_by)))
+            nulls_first = list(extend_bool(True, len(inputs.order_by)))
+            return [
+                window(
+                    F.lag(expr, n),
+                    inputs.partition_by,
+                    inputs.order_by,
+                    descending=descending,
+                    nulls_first=nulls_first,
+                )
+                for expr in self(df)
+            ]
+
+        return self._with_window_function(func)
+
     @property
     def name(self) -> ExprNameNamespace:
         return ExprNameNamespace(self)
@@ -748,7 +766,6 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     mode = not_implemented()
     quantile = not_implemented()
     replace_strict = not_implemented()
-    shift = not_implemented()
     sqrt = not_implemented()
     unique = not_implemented()
     first = not_implemented()
