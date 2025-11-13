@@ -726,11 +726,31 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
             _partitioned_is_unique
         )
 
+    def diff(self) -> Self:
+        def func(df: DaftLazyFrame, inputs: WindowInputs) -> Sequence[Expression]:
+            window = self._window_expression
+            descending = list(extend_bool(False, len(inputs.order_by)))
+            nulls_first = list(extend_bool(True, len(inputs.order_by)))
+            return [
+                op.sub(
+                    expr,
+                    window(
+                        F.lag(expr),
+                        inputs.partition_by,
+                        inputs.order_by,
+                        descending=descending,
+                        nulls_first=nulls_first,
+                    ),
+                )
+                for expr in self(df)
+            ]
+
+        return self._with_window_function(func)
+
     @property
     def name(self) -> ExprNameNamespace:
         return ExprNameNamespace(self)
 
-    diff = not_implemented()
     drop_nulls = not_implemented()
     fill_nan = not_implemented()
     filter = not_implemented()
