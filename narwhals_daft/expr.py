@@ -556,6 +556,9 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
 
         return self._with_callable(func)
 
+    def sqrt(self) -> Self:
+        return self._with_callable(lambda _input: _input.sqrt())
+
     def max(self) -> Self:
         return self._with_callable(lambda _input: _input.max())
 
@@ -749,7 +752,6 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     quantile = not_implemented()
     replace_strict = not_implemented()
     shift = not_implemented()
-    sqrt = not_implemented()
     unique = not_implemented()
     first = not_implemented()
     last = not_implemented()

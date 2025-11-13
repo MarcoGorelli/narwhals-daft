@@ -115,7 +115,6 @@ TESTS_THAT_NEED_FIX = [
     "test_shift_lazy_grouped",
     "test_skew_expr",
     "test_split_list_get",
-    "test_sqrt_expr",
     "test_starts_with",
     "test_std_broadcating",
     "test_str_head",
