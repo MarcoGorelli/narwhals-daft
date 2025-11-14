@@ -27,6 +27,11 @@ class ExprStringNamespace(StringNamespace["DaftExpr"]):
     def to_uppercase(self) -> DaftExpr:
         return self.compliant._with_elementwise(lambda expr: F.upper(expr))
 
+    def to_date(self, format: str | None = None) -> DaftExpr:
+        if format is None:
+            format = "%Y-%m-%d"
+        return self.compliant._with_elementwise(lambda expr: F.to_date(expr, format))
+
     replace = not_implemented()
     replace_all = not_implemented()
     strip_chars = not_implemented()
@@ -36,6 +41,5 @@ class ExprStringNamespace(StringNamespace["DaftExpr"]):
     slice = not_implemented()
     split = not_implemented()
     to_datetime = not_implemented()
-    to_date = not_implemented()
     to_titlecase = not_implemented()
     zfill = not_implemented()
