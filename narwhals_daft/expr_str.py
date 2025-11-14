@@ -32,6 +32,9 @@ class ExprStringNamespace(StringNamespace["DaftExpr"]):
             format = "%Y-%m-%d"
         return self.compliant._with_elementwise(lambda expr: F.to_date(expr, format))
 
+    def split(self, by: str) -> DaftExpr:
+        return self.compliant._with_elementwise(lambda expr: F.split(expr, by))
+
     replace = not_implemented()
     replace_all = not_implemented()
     strip_chars = not_implemented()
@@ -39,7 +42,6 @@ class ExprStringNamespace(StringNamespace["DaftExpr"]):
     ends_with = not_implemented()
     contains = not_implemented()
     slice = not_implemented()
-    split = not_implemented()
     to_datetime = not_implemented()
     to_titlecase = not_implemented()
     zfill = not_implemented()
