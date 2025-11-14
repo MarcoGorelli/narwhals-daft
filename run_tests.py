@@ -113,7 +113,6 @@ TESTS_THAT_NEED_FIX = [
     "test_starts_with",
     "test_std_broadcating",
     "test_str_head",
-    "test_str_len_chars",
     "test_str_replace_all_expr_multivalue",
     "test_str_replace_all_expr_scalar",
     "test_str_replace_errors_expr",
