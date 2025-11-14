@@ -35,11 +35,15 @@ class ExprStringNamespace(StringNamespace["DaftExpr"]):
     def split(self, by: str) -> DaftExpr:
         return self.compliant._with_elementwise(lambda expr: F.split(expr, by))
 
+    def starts_with(self, prefix: str) -> DaftExpr:
+        return self.compliant._with_elementwise(lambda expr: F.startswith(expr, prefix))
+
+    def ends_with(self, suffix: str) -> DaftExpr:
+        return self.compliant._with_elementwise(lambda expr: F.endswith(expr, suffix))
+
     replace = not_implemented()
     replace_all = not_implemented()
     strip_chars = not_implemented()
-    starts_with = not_implemented()
-    ends_with = not_implemented()
     contains = not_implemented()
     slice = not_implemented()
     to_datetime = not_implemented()
