@@ -13,6 +13,7 @@ from narwhals._expression_parsing import (
 from narwhals._utils import Implementation, not_implemented
 
 from narwhals_daft.expr_name import ExprNameNamespace
+from narwhals_daft.expr_str import ExprStringNamespace
 from narwhals_daft.utils import evaluate_literal, extend_bool, narwhals_to_native_dtype
 
 if TYPE_CHECKING:
@@ -495,8 +496,19 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
 
     def clip(self, lower_bound: DaftExpr, upper_bound: DaftExpr) -> Self:
         return self._with_elementwise(
-            lambda expr: expr.clip(lower_bound, upper_bound),
+            lambda expr, lower_bound, upper_bound: expr.clip(lower_bound, upper_bound),
             lower_bound=lower_bound,
+            upper_bound=upper_bound,
+        )
+
+    def clip_lower(self, lower_bound: DaftExpr) -> Self:
+        return self._with_elementwise(
+            lambda expr, lower_bound: expr.clip(lower_bound), lower_bound=lower_bound
+        )
+
+    def clip_upper(self, upper_bound: DaftExpr) -> Self:
+        return self._with_elementwise(
+            lambda expr, upper_bound: expr.clip(max=upper_bound),
             upper_bound=upper_bound,
         )
 
@@ -571,6 +583,12 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     def round(self, decimals: int) -> Self:
         return self._with_elementwise(lambda _input: _input.round(decimals))
 
+    def floor(self) -> Self:
+        return self._with_elementwise(lambda _input: _input.floor())
+
+    def ceil(self) -> Self:
+        return self._with_elementwise(lambda _input: _input.ceil())
+
     def fill_null(self, value: Self | Any, strategy: Any, limit: int | None) -> Self:
         if strategy is not None:
             msg = "todo"
@@ -582,6 +600,12 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
 
     def log(self, base: float) -> Self:
         return self._with_elementwise(lambda expr: expr.log(base=base))
+
+    def exp(self) -> Self:
+        return self._with_elementwise(lambda expr: expr.exp())
+
+    def sqrt(self) -> Self:
+        return self._with_elementwise(lambda expr: expr.sqrt())
 
     def skew(self) -> Self:
         return self._with_callable(lambda expr: expr.skew())
@@ -712,18 +736,57 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
             _partitioned_is_unique
         )
 
+    def diff(self) -> Self:
+        def func(df: DaftLazyFrame, inputs: WindowInputs) -> Sequence[Expression]:
+            window = self._window_expression
+            descending = list(extend_bool(False, len(inputs.order_by)))
+            nulls_first = list(extend_bool(True, len(inputs.order_by)))
+            return [
+                op.sub(
+                    expr,
+                    window(
+                        F.lag(expr),
+                        inputs.partition_by,
+                        inputs.order_by,
+                        descending=descending,
+                        nulls_first=nulls_first,
+                    ),
+                )
+                for expr in self(df)
+            ]
+
+        return self._with_window_function(func)
+
+    def shift(self, n: int) -> Self:
+        def func(df: DaftLazyFrame, inputs: WindowInputs) -> Sequence[Expression]:
+            window = self._window_expression
+            descending = list(extend_bool(False, len(inputs.order_by)))
+            nulls_first = list(extend_bool(True, len(inputs.order_by)))
+            return [
+                window(
+                    F.lag(expr, n),
+                    inputs.partition_by,
+                    inputs.order_by,
+                    descending=descending,
+                    nulls_first=nulls_first,
+                )
+                for expr in self(df)
+            ]
+
+        return self._with_window_function(func)
+
     @property
     def name(self) -> ExprNameNamespace:
         return ExprNameNamespace(self)
 
-    clip_lower = not_implemented()
-    clip_upper = not_implemented()
-    diff = not_implemented()
+    @property
+    def str(self) -> ExprStringNamespace:
+        return ExprStringNamespace(self)
+
     drop_nulls = not_implemented()
     fill_nan = not_implemented()
     filter = not_implemented()
     ewm_mean = not_implemented()
-    exp = not_implemented()
     kurtosis = not_implemented()
     rank = not_implemented()
     map_batches = not_implemented()
@@ -731,16 +794,11 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     mode = not_implemented()
     quantile = not_implemented()
     replace_strict = not_implemented()
-    shift = not_implemented()
-    sqrt = not_implemented()
     unique = not_implemented()
     first = not_implemented()
     last = not_implemented()
-    floor = not_implemented()
-    ceil = not_implemented()
 
     # namespaces
-    str = not_implemented()  # pyright: ignore[reportAssignmentType]
     dt = not_implemented()  # pyright: ignore[reportAssignmentType]
     cat = not_implemented()  # pyright: ignore[reportAssignmentType]
     list = not_implemented()  # pyright: ignore[reportAssignmentType]
