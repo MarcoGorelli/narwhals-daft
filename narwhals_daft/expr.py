@@ -13,6 +13,7 @@ from narwhals._expression_parsing import (
 from narwhals._utils import Implementation, not_implemented
 
 from narwhals_daft.expr_name import ExprNameNamespace
+from narwhals_daft.expr_str import ExprStringNamespace
 from narwhals_daft.utils import evaluate_literal, extend_bool, narwhals_to_native_dtype
 
 if TYPE_CHECKING:
@@ -778,6 +779,10 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     def name(self) -> ExprNameNamespace:
         return ExprNameNamespace(self)
 
+    @property
+    def str(self) -> ExprStringNamespace:
+        return ExprStringNamespace(self)
+
     drop_nulls = not_implemented()
     fill_nan = not_implemented()
     filter = not_implemented()
@@ -794,7 +799,6 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     last = not_implemented()
 
     # namespaces
-    str = not_implemented()  # pyright: ignore[reportAssignmentType]
     dt = not_implemented()  # pyright: ignore[reportAssignmentType]
     cat = not_implemented()  # pyright: ignore[reportAssignmentType]
     list = not_implemented()  # pyright: ignore[reportAssignmentType]
