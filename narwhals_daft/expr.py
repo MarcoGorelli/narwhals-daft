@@ -13,7 +13,6 @@ from narwhals._expression_parsing import (
 from narwhals._utils import Implementation, not_implemented
 
 from narwhals_daft.expr_name import ExprNameNamespace
-from narwhals_daft.expr_str import ExprStringNamespace
 from narwhals_daft.utils import evaluate_literal, extend_bool, narwhals_to_native_dtype
 
 if TYPE_CHECKING:
@@ -23,6 +22,7 @@ if TYPE_CHECKING:
     from narwhals._compliant.typing import AliasNames, EvalNames, EvalSeries
     from narwhals._utils import Version, _LimitedContext
     from narwhals.dtypes import DType
+    from narwhals.typing import ModeKeepStrategy, NonNestedLiteral
     from typing_extensions import Self, TypeIs
 
     from narwhals_daft.dataframe import DaftLazyFrame
@@ -607,6 +607,18 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     def sqrt(self) -> Self:
         return self._with_elementwise(lambda expr: expr.sqrt())
 
+    # sketch of what I think should be happening if using daft
+    # trying to adapt the code in daft_experiments.py but
+    # didn't finish the function as I understand the translation
+    # can't rely on using a column in a df
+    def mode(self, *, keep: ModeKeepStrategy) -> Self:
+        def func(expr: Expression) -> NonNestedLiteral:
+            value_counts = expr.count().alias("count")
+            counts_dict = value_counts.to_pydict()
+            max_count = max(counts_dict["count"])
+
+        return self._with_callable(func)
+
     def skew(self) -> Self:
         return self._with_callable(lambda expr: expr.skew())
 
@@ -779,10 +791,6 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     def name(self) -> ExprNameNamespace:
         return ExprNameNamespace(self)
 
-    @property
-    def str(self) -> ExprStringNamespace:
-        return ExprStringNamespace(self)
-
     drop_nulls = not_implemented()
     fill_nan = not_implemented()
     filter = not_implemented()
@@ -791,7 +799,6 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     rank = not_implemented()
     map_batches = not_implemented()
     median = not_implemented()
-    mode = not_implemented()
     quantile = not_implemented()
     replace_strict = not_implemented()
     unique = not_implemented()
@@ -799,6 +806,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     last = not_implemented()
 
     # namespaces
+    str = not_implemented()  # pyright: ignore[reportAssignmentType]
     dt = not_implemented()  # pyright: ignore[reportAssignmentType]
     cat = not_implemented()  # pyright: ignore[reportAssignmentType]
     list = not_implemented()  # pyright: ignore[reportAssignmentType]
