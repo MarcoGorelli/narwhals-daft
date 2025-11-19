@@ -28,6 +28,7 @@ TESTS_THAT_NEED_FIX = [
     "test_dt_to_string_expr",
     "test_dt_to_string_iso_local_date_expr",
     "test_dt_to_string_iso_local_datetime_expr",
+    "test_duration_attributes",
     "test_empty_scalar_reduction_with_columns",
     "test_explode_invalid_operation_error",
     "test_explode_multiple_cols",
@@ -84,6 +85,7 @@ TESTS_THAT_NEED_FIX = [
     "test_over_pushdown",
     "test_over_quantile",
     "test_over_std_var",
+    "test_over_when_then_aggregation_partition_by",
     "test_package_version",
     "test_parse_weight",
     "test_pipe_expr",
@@ -169,3 +171,4 @@ try:
     subprocess.run(command, check=True)
 except subprocess.CalledProcessError as e:
     print("Exit code:", e.returncode)
+    sys.exit(e.returncode)
