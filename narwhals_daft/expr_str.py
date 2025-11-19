@@ -8,6 +8,8 @@ from narwhals._compliant.any_namespace import StringNamespace
 from narwhals._utils import not_implemented
 
 if TYPE_CHECKING:
+    from daft import Expression
+
     from narwhals_daft.expr import DaftExpr
 
 
@@ -26,14 +28,15 @@ class ExprStringNamespace(StringNamespace["DaftExpr"]):
         return self.compliant._with_elementwise(lambda expr: F.lower(expr))
     
     def to_titlecase(self) -> DaftExpr:
-        def _to_titlecase(expr):
-            pattern = re.compile(r"[a-z]*[^a-z]*")
+        def _to_titlecase(expr: Expression) -> Expression:
             if expr is None:
                 return None
-            expr = expr.lower()
-            parts = pattern.findall(expr)
-            capitalized_parts = [p.capitalize() for p in parts if p]
-            return "".join(capitalized_parts)
+            lower_expr = F.lower(expr)
+            extract_expr = F.regexp_extract_all(
+                lower_expr, r"[a-z]*[^a-z]*", 0
+            )
+            capitalized_parts = [p.capitalize() for p in extract_expr if p]
+            return F.list_join(capitalized_parts, delimiter="") 
 
         return self.compliant._with_elementwise(_to_titlecase)
 
