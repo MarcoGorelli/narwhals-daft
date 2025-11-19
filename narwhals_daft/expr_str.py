@@ -1,6 +1,7 @@
 from __future__ import annotations
+import re
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, LiteralString
 
 import daft.functions as F
 from narwhals._compliant.any_namespace import StringNamespace
@@ -23,6 +24,18 @@ class ExprStringNamespace(StringNamespace["DaftExpr"]):
 
     def to_lowercase(self) -> DaftExpr:
         return self.compliant._with_elementwise(lambda expr: F.lower(expr))
+    
+    def to_titlecase(self) -> DaftExpr:
+        def _to_titlecase(expr):
+            pattern = re.compile(r"[a-z]*[^a-z]*")
+            if expr is None:
+                return None
+            expr = expr.lower()
+            parts = pattern.findall(expr)
+            capitalized_parts = [p.capitalize() for p in parts if p]
+            return "".join(capitalized_parts)
+
+        return self.compliant._with_elementwise(_to_titlecase)
 
     def to_uppercase(self) -> DaftExpr:
         return self.compliant._with_elementwise(lambda expr: F.upper(expr))
@@ -47,5 +60,5 @@ class ExprStringNamespace(StringNamespace["DaftExpr"]):
     contains = not_implemented()
     slice = not_implemented()
     to_datetime = not_implemented()
-    to_titlecase = not_implemented()
+    #to_titlecase = not_implemented()
     zfill = not_implemented()
