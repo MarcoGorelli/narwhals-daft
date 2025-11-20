@@ -119,7 +119,6 @@ TESTS_THAT_NEED_FIX = [
     "test_str_slice",
     "test_str_strip_chars",
     "test_str_tail",
-    "test_str_to_titlecase_expr",
     "test_str_zfill",
     "test_sumh_broadcasting",
     "test_sumh_transformations",
