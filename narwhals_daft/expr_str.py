@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 import daft.functions as F
 from daft.expressions import col
+from daft import lit
 from narwhals._compliant.any_namespace import StringNamespace
 from narwhals._utils import not_implemented
 
@@ -55,10 +56,18 @@ class ExprStringNamespace(StringNamespace["DaftExpr"]):
     def ends_with(self, suffix: str) -> DaftExpr:
         return self.compliant._with_elementwise(lambda expr: F.endswith(expr, suffix))
 
+    def slice(self, offset: int, length: int | None = None) -> DaftExpr:
+        def func(expr: Expression) -> Expression:
+            col_length = F.length(expr).cast(int)
+            _offset = col_length + lit(offset) if offset < 0 else lit(offset)
+            _length = lit(length) if length is not None else col_length
+            return F.substr(expr, _offset, _length)
+
+        return self.compliant._with_elementwise(func)
+
     replace = not_implemented()
     replace_all = not_implemented()
     strip_chars = not_implemented()
     contains = not_implemented()
-    slice = not_implemented()
     to_datetime = not_implemented()
     zfill = not_implemented()

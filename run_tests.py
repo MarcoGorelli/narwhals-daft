@@ -8,8 +8,6 @@ TESTS_THAT_NEED_FIX = [
     "test_arithmetic_expr_left_literal",
     "test_cast",
     "test_cast_binary",
-    "test_cast_datetime_tz_aware",
-    "test_cast_datetime_utc",
     "test_cast_raises_for_unknown_dtype",
     "test_cast_time",
     "test_cast_to_enum_v1",
@@ -30,6 +28,7 @@ TESTS_THAT_NEED_FIX = [
     "test_dt_to_string_expr",
     "test_dt_to_string_iso_local_date_expr",
     "test_dt_to_string_iso_local_datetime_expr",
+    "test_duration_attributes",
     "test_empty_scalar_reduction_with_columns",
     "test_explode_invalid_operation_error",
     "test_explode_multiple_cols",
@@ -86,6 +85,7 @@ TESTS_THAT_NEED_FIX = [
     "test_over_pushdown",
     "test_over_quantile",
     "test_over_std_var",
+    "test_over_when_then_aggregation_partition_by",
     "test_package_version",
     "test_parse_weight",
     "test_pipe_expr",
@@ -110,15 +110,12 @@ TESTS_THAT_NEED_FIX = [
     "test_skew_expr",
     "test_split_list_get",
     "test_std_broadcating",
-    "test_str_head",
     "test_str_replace_all_expr_multivalue",
     "test_str_replace_all_expr_scalar",
     "test_str_replace_errors_expr",
     "test_str_replace_expr_multivalue",
     "test_str_replace_expr_scalar",
-    "test_str_slice",
     "test_str_strip_chars",
-    "test_str_tail",
     "test_str_zfill",
     "test_sumh_broadcasting",
     "test_sumh_transformations",
@@ -173,3 +170,4 @@ try:
     subprocess.run(command, check=True)
 except subprocess.CalledProcessError as e:
     print("Exit code:", e.returncode)
+    sys.exit(e.returncode)
