@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import daft.functions as F
+from daft.expressions import col
 from daft import lit
 from narwhals._compliant.any_namespace import StringNamespace
 from narwhals._utils import not_implemented
@@ -26,6 +27,17 @@ class ExprStringNamespace(StringNamespace["DaftExpr"]):
 
     def to_lowercase(self) -> DaftExpr:
         return self.compliant._with_elementwise(lambda expr: F.lower(expr))
+
+    def to_titlecase(self) -> DaftExpr:
+        def _to_titlecase(expr: Expression) -> Expression:
+            if expr is None:
+                return None
+            lower_expr = F.lower(expr)
+            extract_expr = F.regexp_extract_all(lower_expr, r"[a-z]*[^a-z]*", 0)
+            capitalized_list = F.list_map(extract_expr, F.capitalize(col("")))
+            return F.list_join(capitalized_list, delimiter="")
+
+        return self.compliant._with_elementwise(_to_titlecase)
 
     def to_uppercase(self) -> DaftExpr:
         return self.compliant._with_elementwise(lambda expr: F.upper(expr))
@@ -58,5 +70,4 @@ class ExprStringNamespace(StringNamespace["DaftExpr"]):
     strip_chars = not_implemented()
     contains = not_implemented()
     to_datetime = not_implemented()
-    to_titlecase = not_implemented()
     zfill = not_implemented()
