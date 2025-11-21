@@ -331,7 +331,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
         )
 
     def _with_elementwise(
-        self, call: Callable[..., Expression], /, **expressifiable_args: Self | Any
+        self, call: Callable[..., Expression], /, **expressifiable_args: Self
     ) -> Self:
         return self.__class__(
             self._callable_to_eval_series(call, **expressifiable_args),
