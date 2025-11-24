@@ -73,8 +73,20 @@ class ExprStringNamespace(StringNamespace["DaftExpr"]):
             raise NotImplementedError(msg)
         return self.compliant._with_elementwise(lambda expr: F.lstrip(F.rstrip(expr)))
 
+    def replace_all(self, value: DaftExpr, pattern: str, *, literal: bool) -> DaftExpr:
+        if literal:
+            return self.compliant._with_elementwise(
+                lambda expr, value: F.replace(expr, search=pattern, replacement=value),
+                value=value,
+            )
+        return self.compliant._with_elementwise(
+            lambda expr, value: F.regexp_replace(
+                expr, pattern=pattern, replacement=value
+            ),
+            value=value,
+        )
+
     replace = not_implemented()
-    replace_all = not_implemented()
     contains = not_implemented()
     to_datetime = not_implemented()
     zfill = not_implemented()
