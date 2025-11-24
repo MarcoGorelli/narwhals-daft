@@ -65,6 +65,14 @@ class ExprStringNamespace(StringNamespace["DaftExpr"]):
 
         return self.compliant._with_elementwise(func)
 
+    def strip_chars(self, characters: str | None) -> DaftExpr:
+        if characters is not None:
+            # Feature request of `trim` in Daft
+            # https://github.com/Eventual-Inc/Daft/issues/4021
+            msg = "Non empty `characters` argument is not yet supported."
+            raise NotImplementedError(msg)
+        return self.compliant._with_elementwise(lambda expr: F.lstrip(F.rstrip(expr)))
+
     def replace_all(self, value: DaftExpr, pattern: str, *, literal: bool) -> DaftExpr:
         if literal:
             return self.compliant._with_elementwise(
@@ -79,7 +87,6 @@ class ExprStringNamespace(StringNamespace["DaftExpr"]):
         )
 
     replace = not_implemented()
-    strip_chars = not_implemented()
     contains = not_implemented()
     to_datetime = not_implemented()
     zfill = not_implemented()
