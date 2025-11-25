@@ -125,8 +125,6 @@ TESTS_THAT_NEED_FIX = [
     "test_to_datetime_infer_fmt",
     "test_to_datetime_infer_fmt_from_date",
     "test_to_datetime_tz_aware",
-    "test_top_k",
-    "test_top_k_by_multiple",
     "test_truncate",
     "test_truncate_invalid_interval",
     "test_truncate_invalid_multiple",

@@ -11,6 +11,7 @@ from narwhals._utils import (
     ValidateBackendVersion,
     Version,
     check_column_names_are_unique,
+    extend_bool,
     generate_temporary_column_name,
     not_implemented,
     parse_columns_to_drop,
@@ -26,7 +27,7 @@ from narwhals_daft.group_by import DaftLazyGroupBy
 from narwhals_daft.utils import evaluate_exprs, lit, native_to_narwhals_dtype
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Mapping, Sequence
+    from collections.abc import Iterable, Iterator, Mapping, Sequence
     from types import ModuleType
 
     from narwhals._compliant.typing import CompliantDataFrameAny
@@ -226,6 +227,16 @@ class DaftLazyFrame(
                 list(by),
                 desc=descending if isinstance(descending, bool) else list(descending),
                 nulls_first=not nulls_last,
+            )
+        )
+
+    def top_k(
+        self, k: int, *, by: Iterable[str], reverse: bool | Sequence[bool]
+    ) -> Self:
+        descending = [not x for x in extend_bool(reverse, len(list(by)))]
+        return self._with_native(
+            self._native_frame.sort(list(by), desc=descending, nulls_first=False).limit(
+                k
             )
         )
 
