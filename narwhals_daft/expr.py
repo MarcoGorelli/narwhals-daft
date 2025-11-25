@@ -192,7 +192,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
 
         return func
 
-    def broadcast(self) -> Self:
+    def broadcast(self) -> DaftExpr:
         return self.over([lit(1)], [])
 
     def __call__(self, df: DaftLazyFrame) -> Sequence[Expression]:
