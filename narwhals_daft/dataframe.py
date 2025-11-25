@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from narwhals.dataframe import LazyFrame
     from narwhals.dtypes import DType
     from narwhals.typing import JoinStrategy
-    from typing_extensions import TypeIs
+    from typing_extensions import Self, TypeIs
 
     from narwhals_daft.expr import DaftExpr, WindowInputs
     from narwhals_daft.namespace import DaftNamespace
@@ -65,9 +65,7 @@ class DaftLazyFrame(
         return isinstance(obj, daft.DataFrame)
 
     @classmethod
-    def from_native(
-        cls, data: daft.DataFrame, /, *, context: _LimitedContext
-    ) -> DaftExpr:
+    def from_native(cls, data: daft.DataFrame, /, *, context: _LimitedContext) -> Self:
         return cls(data, version=context._version)
 
     def to_narwhals(self) -> LazyFrame[daft.DataFrame]:
@@ -83,13 +81,13 @@ class DaftLazyFrame(
 
         return DaftNamespace(version=self._version)
 
-    def __narwhals_lazyframe__(self) -> DaftExpr:
+    def __narwhals_lazyframe__(self) -> Self:
         return self
 
-    def _with_version(self, version: Version) -> DaftExpr:
+    def _with_version(self, version: Version) -> Self:
         return self.__class__(self._native_frame, version=version)
 
-    def _with_native(self, df: daft.DataFrame) -> DaftExpr:
+    def _with_native(self, df: daft.DataFrame) -> Self:
         return self.__class__(df, version=self._version)
 
     def _iter_columns(self) -> Iterator[daft.Expression]:
@@ -156,16 +154,16 @@ class DaftLazyFrame(
         msg = f"Unsupported `backend` value: {backend}"  # pragma: no cover
         raise ValueError(msg)  # pragma: no cover
 
-    def simple_select(self, *column_names: str) -> DaftExpr:
+    def simple_select(self, *column_names: str) -> Self:
         return self._with_native(self._native_frame.select(*column_names))
 
-    def aggregate(self, *exprs: DaftExpr) -> DaftExpr:
+    def aggregate(self, *exprs: DaftExpr) -> Self:
         new_columns_map = evaluate_exprs(self, *exprs)
         return self._with_native(
             self._native_frame.agg([val.alias(col) for col, val in new_columns_map])
         )
 
-    def select(self, *exprs: DaftExpr) -> DaftExpr:
+    def select(self, *exprs: DaftExpr) -> Self:
         new_columns_map = evaluate_exprs(self, *exprs)
         if not new_columns_map:
             msg = "At least one expression must be passed to LazyFrame.select"
@@ -186,11 +184,11 @@ class DaftLazyFrame(
                 raise ColumnNotFoundError(msg) from e
             raise
 
-    def with_columns(self, *exprs: DaftExpr) -> DaftExpr:
+    def with_columns(self, *exprs: DaftExpr) -> Self:
         new_columns_map = dict(evaluate_exprs(self, *exprs))
         return self._with_native(self._native_frame.with_columns(new_columns_map))
 
-    def filter(self, predicate: DaftExpr) -> DaftExpr:
+    def filter(self, predicate: DaftExpr) -> Self:
         # `[0]` is safe as the predicate's expression only returns a single column
         mask = predicate._call(self)[0]
         return self._with_native(self._native_frame.filter(mask))
@@ -212,17 +210,17 @@ class DaftLazyFrame(
             for field in self._native_frame.schema()
         }
 
-    def drop(self, columns: Sequence[str], *, strict: bool) -> DaftExpr:
+    def drop(self, columns: Sequence[str], *, strict: bool) -> Self:
         columns_to_drop = parse_columns_to_drop(self, columns, strict=strict)
         selection = [col for col in self.columns if col not in columns_to_drop]
         return self._with_native(self._native_frame.select(*selection))
 
-    def head(self, n: int) -> DaftExpr:
+    def head(self, n: int) -> Self:
         return self._with_native(self._native_frame.limit(n))
 
     def sort(
         self, *by: str, descending: bool | Sequence[bool], nulls_last: bool
-    ) -> DaftExpr:
+    ) -> Self:
         return self._with_native(
             self._native_frame.sort(
                 list(by),
@@ -231,12 +229,12 @@ class DaftLazyFrame(
             )
         )
 
-    def drop_nulls(self, subset: Sequence[str] | None) -> DaftExpr:
+    def drop_nulls(self, subset: Sequence[str] | None) -> Self:
         if subset:
             return self._with_native(self._native_frame.drop_null(*subset))
         return self._with_native(self._native_frame.drop_null())
 
-    def rename(self, mapping: Mapping[str, str]) -> DaftExpr:
+    def rename(self, mapping: Mapping[str, str]) -> Self:
         selection = [
             daft.col(col).alias(mapping[col]) if col in mapping else col
             for col in self.columns
@@ -245,7 +243,7 @@ class DaftLazyFrame(
 
     def unique(
         self, subset: Sequence[str] | None, *, keep: str, order_by: Sequence[str] | None
-    ) -> DaftExpr:
+    ) -> Self:
         subset_ = subset or self.columns
         tmp_name = generate_temporary_column_name(8, self.columns, prefix="row_index_")
         window = daft.Window().partition_by(*subset_)
@@ -265,12 +263,12 @@ class DaftLazyFrame(
 
     def join(
         self,
-        other: DaftExpr,
+        other: Self,
         how: JoinStrategy,
         left_on: Sequence[str] | None,
         right_on: Sequence[str] | None,
         suffix: str,
-    ) -> DaftExpr:
+    ) -> Self:
         if how == "cross":
             return self._with_native(
                 self.native.join(other.native, how="cross", prefix="", suffix=suffix)
@@ -334,7 +332,7 @@ class DaftLazyFrame(
         index: Sequence[str] | None,
         variable_name: str,
         value_name: str,
-    ) -> DaftExpr:
+    ) -> Self:
         index_ = [] if index is None else index
         on_ = [c for c in self.columns if c not in index_] if on is None else on
         return self._with_native(
@@ -346,7 +344,7 @@ class DaftLazyFrame(
             )
         )
 
-    def with_row_index(self, name: str, order_by: Sequence[str]) -> DaftExpr:
+    def with_row_index(self, name: str, order_by: Sequence[str]) -> Self:
         row_index_expr = (
             (
                 daft.functions.row_number().over(
