@@ -210,7 +210,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     def _alias_native(cls, expr: Expression, name: str) -> Expression:
         return expr.alias(name)
 
-    def alias(self, name: str) -> Self:
+    def alias(self, name: str) -> DaftExpr:
         def fn(names: Sequence[str]) -> Sequence[str]:
             if len(names) != 1:
                 msg = (
@@ -341,7 +341,9 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
             version=self._version,
         )
 
-    def _with_binary(self, op: Callable[..., Expression], other: Self | Any) -> Self:
+    def _with_binary(
+        self, op: Callable[..., Expression], other: DaftExpr | Any
+    ) -> DaftExpr:
         return self.__class__(
             self._callable_to_eval_series(op, other=other),
             self._push_down_window_function(op, other=other),
@@ -367,7 +369,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
             version=self._version,
         )
 
-    def __and__(self, other: Self) -> Self:
+    def __and__(self, other: DaftExpr) -> DaftExpr:
         return self._with_binary(lambda expr, other: (expr & other), other=other)
 
     def __or__(self, other: Self) -> Self:
