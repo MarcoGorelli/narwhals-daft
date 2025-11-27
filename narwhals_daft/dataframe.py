@@ -28,6 +28,8 @@ from narwhals_daft.utils import evaluate_exprs, lit, native_to_narwhals_dtype
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping, Sequence
+    from io import BytesIO
+    from pathlib import Path
     from types import ModuleType
 
     from narwhals._compliant.typing import CompliantDataFrameAny
@@ -380,6 +382,9 @@ class DaftLazyFrame(
     def explode(self, columns: Sequence[str]) -> DaftLazyFrame:
         return self._with_native(self.native.explode(*columns))
 
+    def sink_parquet(self, file: str | Path | BytesIO) -> None:
+        self.native.write_parquet(str(file))
+
     gather_every = not_implemented.deprecated(
         "`LazyFrame.gather_every` is deprecated and will be removed in a future version."
     )
@@ -387,4 +392,3 @@ class DaftLazyFrame(
     tail = not_implemented.deprecated(
         "`LazyFrame.tail` is deprecated and will be removed in a future version."
     )
-    sink_parquet = not_implemented()
