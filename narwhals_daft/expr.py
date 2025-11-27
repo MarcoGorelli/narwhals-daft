@@ -278,7 +278,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
         )
 
     def _callable_to_eval_series(
-        self, call: Callable[..., Expression], /, **expressifiable_args: DaftExpr | Any
+        self, call: Callable[..., Expression], /, **expressifiable_args: DaftExpr
     ) -> EvalSeries[DaftLazyFrame, Expression]:
         def func(df: DaftLazyFrame) -> list[Expression]:
             native_series_list = self(df)
@@ -321,7 +321,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
         call: Callable[..., Expression],
         window_func: WindowFunction | None = None,
         /,
-        **expressifiable_args: DaftExpr | Any,
+        **expressifiable_args: DaftExpr,
     ) -> DaftExpr:
         return self.__class__(
             self._callable_to_eval_series(call, **expressifiable_args),
@@ -342,9 +342,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
             version=self._version,
         )
 
-    def _with_binary(
-        self, op: Callable[..., Expression], other: DaftExpr | Any
-    ) -> DaftExpr:
+    def _with_binary(self, op: Callable[..., Expression], other: DaftExpr) -> DaftExpr:
         return self.__class__(
             self._callable_to_eval_series(op, other=other),
             self._push_down_window_function(op, other=other),
@@ -592,9 +590,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     def ceil(self) -> DaftExpr:
         return self._with_elementwise(lambda _input: _input.ceil())
 
-    def fill_null(
-        self, value: DaftExpr | Any, strategy: Any, limit: int | None
-    ) -> DaftExpr:
+    def fill_null(self, value: DaftExpr, strategy: Any, limit: int | None) -> DaftExpr:
         if strategy is not None:
             msg = "todo"
             raise NotImplementedError(msg)
@@ -616,7 +612,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
         return self._with_callable(lambda expr: expr.skew())
 
     @classmethod
-    def _is_expr(cls, obj: DaftExpr | Any) -> TypeIs[DaftExpr]:
+    def _is_expr(cls, obj: DaftExpr) -> TypeIs[DaftExpr]:
         return hasattr(obj, "__narwhals_expr__")
 
     def _with_window_function(self, window_function: WindowFunction) -> DaftExpr:
