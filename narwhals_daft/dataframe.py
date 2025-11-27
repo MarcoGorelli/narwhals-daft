@@ -377,6 +377,9 @@ class DaftLazyFrame(
     ) -> DaftLazyGroupBy:
         return DaftLazyGroupBy(self, keys, drop_null_keys=drop_null_keys)
 
+    def explode(self, columns: Sequence[str]) -> DaftLazyFrame:
+        return self._with_native(self.native.explode(*columns))
+
     gather_every = not_implemented.deprecated(
         "`LazyFrame.gather_every` is deprecated and will be removed in a future version."
     )
@@ -384,5 +387,4 @@ class DaftLazyFrame(
     tail = not_implemented.deprecated(
         "`LazyFrame.tail` is deprecated and will be removed in a future version."
     )
-    explode = not_implemented()
     sink_parquet = not_implemented()
