@@ -114,7 +114,6 @@ TESTS_THAT_NEED_FIX = [
     "test_timestamp_datetimes",
     "test_timestamp_datetimes_tz_aware",
     "test_timestamp_invalid_date",
-    "test_to_date",
     "test_to_datetime",
     "test_to_datetime_infer_fmt",
     "test_to_datetime_infer_fmt_from_date",
