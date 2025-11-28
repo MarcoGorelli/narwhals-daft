@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from narwhals._compliant.typing import AliasNames, EvalNames, EvalSeries
     from narwhals._utils import Version, _LimitedContext
     from narwhals.dtypes import DType
+    from narwhals.typing import RankMethod
     from typing_extensions import TypeIs
 
     from narwhals_daft.dataframe import DaftLazyFrame
@@ -278,7 +279,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
         )
 
     def _callable_to_eval_series(
-        self, call: Callable[..., Expression], /, **expressifiable_args: DaftExpr | Any
+        self, call: Callable[..., Expression], /, **expressifiable_args: DaftExpr
     ) -> EvalSeries[DaftLazyFrame, Expression]:
         def func(df: DaftLazyFrame) -> list[Expression]:
             native_series_list = self(df)
@@ -321,7 +322,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
         call: Callable[..., Expression],
         window_func: WindowFunction | None = None,
         /,
-        **expressifiable_args: DaftExpr | Any,
+        **expressifiable_args: DaftExpr,
     ) -> DaftExpr:
         return self.__class__(
             self._callable_to_eval_series(call, **expressifiable_args),
@@ -342,9 +343,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
             version=self._version,
         )
 
-    def _with_binary(
-        self, op: Callable[..., Expression], other: DaftExpr | Any
-    ) -> DaftExpr:
+    def _with_binary(self, op: Callable[..., Expression], other: DaftExpr) -> DaftExpr:
         return self.__class__(
             self._callable_to_eval_series(op, other=other),
             self._push_down_window_function(op, other=other),
@@ -592,9 +591,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     def ceil(self) -> DaftExpr:
         return self._with_elementwise(lambda _input: _input.ceil())
 
-    def fill_null(
-        self, value: DaftExpr | Any, strategy: Any, limit: int | None
-    ) -> DaftExpr:
+    def fill_null(self, value: DaftExpr, strategy: Any, limit: int | None) -> DaftExpr:
         if strategy is not None:
             msg = "todo"
             raise NotImplementedError(msg)
@@ -616,7 +613,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
         return self._with_callable(lambda expr: expr.skew())
 
     @classmethod
-    def _is_expr(cls, obj: DaftExpr | Any) -> TypeIs[DaftExpr]:
+    def _is_expr(cls, obj: DaftExpr) -> TypeIs[DaftExpr]:
         return hasattr(obj, "__narwhals_expr__")
 
     def _with_window_function(self, window_function: WindowFunction) -> DaftExpr:
@@ -784,6 +781,67 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
 
         return self._with_window_function(func)
 
+    def rank(self, method: RankMethod, *, descending: bool) -> DaftExpr:
+        if method in {"min", "max", "average"}:
+            func = F.rank()
+        elif method == "dense":
+            func = F.dense_rank()
+        else:  # method == "ordinal"
+            func = F.row_number()
+
+        def _rank(
+            expr: Expression,
+            partition_by: Sequence[str | Expression] = (),
+            *,
+            descending: bool,
+        ) -> Expression:
+            count_expr = expr.count(mode="all")
+            window_kwargs: dict[str, Any] = {
+                "partition_by": partition_by,
+                "order_by": (expr,),
+                "descending": [descending],
+                "nulls_first": [False],
+            }
+            count_window_kwargs: dict[str, Any] = {
+                "partition_by": (*partition_by, expr)
+            }
+            window = self._window_expression
+            if method == "max":
+                rank_expr = op.sub(
+                    op.add(
+                        window(func, **window_kwargs),
+                        window(count_expr, **count_window_kwargs),
+                    ),
+                    lit(1),
+                )
+            elif method == "average":
+                rank_expr = op.add(
+                    window(func, **window_kwargs),
+                    op.truediv(
+                        op.sub(window(count_expr, **count_window_kwargs), lit(1)),
+                        lit(2.0),
+                    ),
+                )
+            else:
+                rank_expr = window(func, **window_kwargs)
+            return F.when(F.is_null(expr), expr).otherwise(rank_expr)
+
+        def _unpartitioned_rank(expr: Expression) -> Expression:
+            return _rank(expr, descending=descending)
+
+        def _partitioned_rank(
+            df: DaftLazyFrame, inputs: WindowInputs
+        ) -> Sequence[Expression]:
+            if inputs.order_by:
+                msg = "`rank` followed by `over` with `order_by` specified is not supported for Daft."
+                raise NotImplementedError(msg)
+            return [
+                _rank(expr, inputs.partition_by, descending=descending)
+                for expr in self(df)
+            ]
+
+        return self._with_callable(_unpartitioned_rank, _partitioned_rank)
+
     @property
     def name(self) -> ExprNameNamespace:
         return ExprNameNamespace(self)
@@ -801,7 +859,6 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     filter = not_implemented()
     ewm_mean = not_implemented()
     kurtosis = not_implemented()
-    rank = not_implemented()
     map_batches = not_implemented()
     median = not_implemented()
     mode = not_implemented()
