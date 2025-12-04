@@ -22,7 +22,6 @@ if TYPE_CHECKING:
 
     from daft import Expression
     from narwhals._utils import Version, _LimitedContext
-    from narwhals.compliant import AliasNames, EvalNames, EvalSeries
     from narwhals.dtypes import DType
     from narwhals.typing import RankMethod
     from typing_extensions import TypeIs
@@ -33,6 +32,8 @@ if TYPE_CHECKING:
     WindowFunction: TypeAlias = Callable[
         [DaftLazyFrame, "WindowInputs"], Sequence[Expression]
     ]
+    AliasNames: TypeAlias = Callable[[Sequence[str]], Sequence[str]]
+    EvalNames: TypeAlias = Callable[[DaftLazyFrame], Sequence[str]]
 
 
 class WindowInputs:
@@ -53,7 +54,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
         call: Callable[[DaftLazyFrame], Sequence[Expression]],
         window_function: WindowFunction | None = None,
         *,
-        evaluate_output_names: EvalNames[DaftLazyFrame],
+        evaluate_output_names: EvalNames,
         alias_output_names: AliasNames | None,
         version: Version,
     ) -> None:
@@ -226,7 +227,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     @classmethod
     def from_column_names(
         cls: type[DaftExpr],
-        evaluate_column_names: EvalNames[DaftLazyFrame],
+        evaluate_column_names: EvalNames,
         /,
         *,
         context: _LimitedContext,
@@ -280,7 +281,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
 
     def _callable_to_eval_series(
         self, call: Callable[..., Expression], /, **expressifiable_args: DaftExpr
-    ) -> EvalSeries[DaftLazyFrame, Expression]:
+    ) -> Callable[[DaftLazyFrame], Sequence[Expression]]:
         def func(df: DaftLazyFrame) -> list[Expression]:
             native_series_list = self(df)
             other_native_series = {
