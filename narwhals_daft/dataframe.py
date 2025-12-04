@@ -32,8 +32,8 @@ if TYPE_CHECKING:
     from pathlib import Path
     from types import ModuleType
 
-    from narwhals._compliant.typing import CompliantDataFrameAny
     from narwhals._utils import _LimitedContext
+    from narwhals.compliant import CompliantDataFrame
     from narwhals.dataframe import LazyFrame
     from narwhals.dtypes import DType
     from narwhals.typing import JoinStrategy
@@ -124,7 +124,7 @@ class DaftLazyFrame(
 
     def collect(
         self, backend: ModuleType | Implementation | str | None, **kwargs: Any
-    ) -> CompliantDataFrameAny:
+    ) -> CompliantDataFrame[Any, Any, Any, Any]:
         if backend is None or backend is Implementation.PYARROW:
             from narwhals._arrow.dataframe import ArrowDataFrame
 

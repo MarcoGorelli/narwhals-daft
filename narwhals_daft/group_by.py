@@ -3,8 +3,8 @@ from __future__ import annotations
 from itertools import chain
 from typing import TYPE_CHECKING
 
-from narwhals._compliant.group_by import CompliantGroupBy
 from narwhals._utils import is_sequence_of
+from narwhals.compliant import CompliantGroupBy
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence

@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 import daft.functions as F
 from daft import lit
 from daft.expressions import col
-from narwhals._compliant.any_namespace import StringNamespace
 from narwhals._utils import not_implemented
+from narwhals.compliant import StringNamespace
 
 if TYPE_CHECKING:
     from daft import Expression

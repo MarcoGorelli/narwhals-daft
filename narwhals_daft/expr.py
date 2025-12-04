@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING, Any, Literal, TypeAlias, cast
 
 import daft.functions as F
 from daft import Window, col, lit
-from narwhals._compliant import CompliantExpr
 from narwhals._expression_parsing import (
     combine_alias_output_names,
     combine_evaluate_output_names,
 )
 from narwhals._utils import Implementation, not_implemented
+from narwhals.compliant import CompliantExpr
 
 from narwhals_daft.expr_dt import ExprDateTimeNamesSpace
 from narwhals_daft.expr_name import ExprNameNamespace
@@ -21,7 +21,6 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
     from daft import Expression
-    from narwhals._compliant.typing import AliasNames, EvalNames, EvalSeries
     from narwhals._utils import Version, _LimitedContext
     from narwhals.dtypes import DType
     from narwhals.typing import RankMethod
@@ -33,6 +32,8 @@ if TYPE_CHECKING:
     WindowFunction: TypeAlias = Callable[
         [DaftLazyFrame, "WindowInputs"], Sequence[Expression]
     ]
+    AliasNames: TypeAlias = Callable[[Sequence[str]], Sequence[str]]
+    EvalNames: TypeAlias = Callable[[DaftLazyFrame], Sequence[str]]
 
 
 class WindowInputs:
@@ -53,7 +54,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
         call: Callable[[DaftLazyFrame], Sequence[Expression]],
         window_function: WindowFunction | None = None,
         *,
-        evaluate_output_names: EvalNames[DaftLazyFrame],
+        evaluate_output_names: EvalNames,
         alias_output_names: AliasNames | None,
         version: Version,
     ) -> None:
@@ -226,7 +227,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     @classmethod
     def from_column_names(
         cls: type[DaftExpr],
-        evaluate_column_names: EvalNames[DaftLazyFrame],
+        evaluate_column_names: EvalNames,
         /,
         *,
         context: _LimitedContext,
@@ -280,7 +281,7 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
 
     def _callable_to_eval_series(
         self, call: Callable[..., Expression], /, **expressifiable_args: DaftExpr
-    ) -> EvalSeries[DaftLazyFrame, Expression]:
+    ) -> Callable[[DaftLazyFrame], Sequence[Expression]]:
         def func(df: DaftLazyFrame) -> list[Expression]:
             native_series_list = self(df)
             other_native_series = {

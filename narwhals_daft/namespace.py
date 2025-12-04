@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING, Any
 
 import daft
 import daft.functions as F
-from narwhals._compliant.namespace import CompliantNamespace
 from narwhals._utils import Implementation, not_implemented
+from narwhals.compliant import CompliantNamespace
 
 from narwhals_daft.dataframe import DaftLazyFrame
 from narwhals_daft.expr import DaftExpr
