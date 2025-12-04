@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING, Any, Literal, TypeAlias, cast
 
 import daft.functions as F
 from daft import Window, col, lit
-from narwhals._compliant import CompliantExpr
 from narwhals._expression_parsing import (
     combine_alias_output_names,
     combine_evaluate_output_names,
 )
 from narwhals._utils import Implementation, not_implemented
+from narwhals.compliant import CompliantExpr
 
 from narwhals_daft.expr_dt import ExprDateTimeNamesSpace
 from narwhals_daft.expr_name import ExprNameNamespace
@@ -21,8 +21,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
     from daft import Expression
-    from narwhals._compliant.typing import AliasNames, EvalNames, EvalSeries
     from narwhals._utils import Version, _LimitedContext
+    from narwhals.compliant import AliasNames, EvalNames, EvalSeries
     from narwhals.dtypes import DType
     from narwhals.typing import RankMethod
     from typing_extensions import TypeIs

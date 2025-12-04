@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import daft.functions as F
-from narwhals._compliant.any_namespace import DateTimeNamespace
 from narwhals._utils import not_implemented
+from narwhals.compliant import DateTimeNamespace
 
 if TYPE_CHECKING:
     from narwhals_daft.expr import DaftExpr

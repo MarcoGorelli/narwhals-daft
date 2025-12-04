@@ -32,8 +32,8 @@ if TYPE_CHECKING:
     from pathlib import Path
     from types import ModuleType
 
-    from narwhals._compliant.typing import CompliantDataFrameAny
     from narwhals._utils import _LimitedContext
+    from narwhals.compliant import CompliantDataFrameAny
     from narwhals.dataframe import LazyFrame
     from narwhals.dtypes import DType
     from narwhals.typing import JoinStrategy
