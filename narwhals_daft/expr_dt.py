@@ -56,7 +56,9 @@ class ExprDateTimeNamesSpace(DateTimeNamespace["DaftExpr"]):
     def ordinal_day(self) -> DaftExpr:
         return self.compliant._with_elementwise(lambda expr: F.day_of_year(expr))
 
-    to_string = not_implemented()
+    def to_string(self, format: str | None) -> DaftExpr:
+        return self.compliant._with_elementwise(lambda expr: F.strftime(expr, format))
+
     replace_time_zone = not_implemented()
     convert_time_zone = not_implemented()
     timestamp = not_implemented()
