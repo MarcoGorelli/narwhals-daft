@@ -6,8 +6,6 @@ import daft.functions as F
 from narwhals._utils import not_implemented
 from narwhals.compliant import DateTimeNamespace
 
-from narwhals_daft.expr import DaftExpr
-
 if TYPE_CHECKING:
     from narwhals_daft.expr import DaftExpr
 
