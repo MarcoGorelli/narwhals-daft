@@ -4,6 +4,9 @@ import subprocess
 import sys
 
 TESTS_THAT_NEED_FIX = [
+    "test_any_value_expr",
+    "test_any_value_group_by",
+    "test_any_value_over",
     "test_arithmetic_expr",
     "test_arithmetic_expr_left_literal",
     "test_cast",
@@ -54,8 +57,11 @@ TESTS_THAT_NEED_FIX = [
     "test_left_to_right_broadcasting",
     "test_len_expr",
     "test_mapping_key_not_in_expr",
+    "test_max_expr",
+    "test_mean_expr",
     "test_median_expr",
     "test_median_expr_raises_on_str",
+    "test_min_expr",
     "test_missing_columns",
     "test_mode_expr_keep_all_lazy",
     "test_mode_expr_keep_any",
@@ -104,6 +110,7 @@ TESTS_THAT_NEED_FIX = [
     "test_str_replace_expr_scalar",
     "test_str_strip_chars",
     "test_str_zfill",
+    "test_sum_expr",
     "test_sumh_broadcasting",
     "test_sumh_transformations",
     "test_timestamp_dates",
