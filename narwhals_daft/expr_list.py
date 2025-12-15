@@ -10,8 +10,8 @@ from narwhals._utils import not_implemented
 if TYPE_CHECKING:
     from narwhals_daft.expr import DaftExpr
 
-class ExprListNamespace(LazyExprNamespace["DaftExpr"], ListNamespace["DaftExpr"]):
 
+class ExprListNamespace(LazyExprNamespace["DaftExpr"], ListNamespace["DaftExpr"]):
     def __init__(self, expr: DaftExpr, /) -> None:
         self._compliant = expr
 
@@ -27,7 +27,6 @@ class ExprListNamespace(LazyExprNamespace["DaftExpr"], ListNamespace["DaftExpr"]
     contains = not_implemented()
     get = not_implemented()
     min = not_implemented()
-    # max = not_implemented()
     mean = not_implemented()
     median = not_implemented()
     sum = not_implemented()

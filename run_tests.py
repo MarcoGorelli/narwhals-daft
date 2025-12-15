@@ -57,7 +57,6 @@ TESTS_THAT_NEED_FIX = [
     "test_left_to_right_broadcasting",
     "test_len_expr",
     "test_mapping_key_not_in_expr",
-    "test_max_expr",
     "test_mean_expr",
     "test_median_expr",
     "test_median_expr_raises_on_str",
