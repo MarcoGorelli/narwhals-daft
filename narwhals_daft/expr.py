@@ -13,6 +13,7 @@ from narwhals._utils import Implementation, not_implemented
 from narwhals.compliant import CompliantExpr
 
 from narwhals_daft.expr_dt import ExprDateTimeNamesSpace
+from narwhals_daft.expr_list import ExprListNamespace
 from narwhals_daft.expr_name import ExprNameNamespace
 from narwhals_daft.expr_str import ExprStringNamespace
 from narwhals_daft.utils import evaluate_literal, extend_bool, narwhals_to_native_dtype
@@ -855,6 +856,10 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     def dt(self) -> ExprDateTimeNamesSpace:
         return ExprDateTimeNamesSpace(self)
 
+    @property
+    def list(self) -> ExprListNamespace:
+        return ExprListNamespace(self)
+
     drop_nulls = not_implemented()
     fill_nan = not_implemented()
     filter = not_implemented()
@@ -871,6 +876,5 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
 
     # namespaces
     cat = not_implemented()  # pyright: ignore[reportAssignmentType]
-    list = not_implemented()  # pyright: ignore[reportAssignmentType]
     struct = not_implemented()  # pyright: ignore[reportAssignmentType]
     any_value = not_implemented()
