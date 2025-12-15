@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from narwhals._compliant import CompliantSelector, CompliantSelectorNamespace
+from narwhals.compliant import CompliantSelector, CompliantSelectorNamespace
 
 from narwhals_daft.expr import DaftExpr
 
