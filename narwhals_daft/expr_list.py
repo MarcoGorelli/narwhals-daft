@@ -19,14 +19,20 @@ class ExprListNamespace(LazyExprNamespace["DaftExpr"], ListNamespace["DaftExpr"]
     def compliant(self) -> DaftExpr:
         return self._compliant
 
+    def len(self) -> DaftExpr:
+        return self.compliant._with_elementwise(lambda expr: F.list_count(expr, "all"))
+
+    def min(self) -> DaftExpr:
+        return self.compliant._with_elementwise(lambda expr: F.list_min(expr))
+
     def max(self) -> DaftExpr:
         return self.compliant._with_elementwise(lambda expr: F.list_max(expr))
 
-    len = not_implemented()
+    def mean(self) -> DaftExpr:
+        return self.compliant._with_elementwise(lambda expr: F.list_mean(expr))
+
     unique = not_implemented()
     contains = not_implemented()
     get = not_implemented()
-    min = not_implemented()
-    mean = not_implemented()
     median = not_implemented()
     sum = not_implemented()
