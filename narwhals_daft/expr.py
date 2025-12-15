@@ -877,3 +877,4 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
     # namespaces
     cat = not_implemented()  # pyright: ignore[reportAssignmentType]
     struct = not_implemented()  # pyright: ignore[reportAssignmentType]
+    any_value = not_implemented()
