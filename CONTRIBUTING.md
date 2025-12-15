@@ -49,6 +49,12 @@ To run type-checking:
 pyright narwhals_daft
 ```
 
+If your changes add new functionalities, update the tests:
+
+```console
+python update_run_tests.py
+```
+
 ## Updating the Narwhals submodule
 
 Run
