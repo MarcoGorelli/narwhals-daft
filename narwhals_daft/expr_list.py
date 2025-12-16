@@ -3,10 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import daft.functions as F
+from daft import lit
 from narwhals._compliant.any_namespace import ListNamespace
 from narwhals._utils import not_implemented
 
 if TYPE_CHECKING:
+    from daft import Expression
+
     from narwhals_daft.expr import DaftExpr
 
 
@@ -30,8 +33,15 @@ class ExprListNamespace(ListNamespace["DaftExpr"]):
     def mean(self) -> DaftExpr:
         return self.compliant._with_elementwise(lambda expr: F.list_mean(expr))
 
+    def sum(self) -> DaftExpr:
+        def func(expr: Expression) -> Expression:
+            return F.when(F.list_count(expr, "valid") == lit(0), lit(0)).otherwise(
+                F.list_sum(expr)
+            )
+
+        return self.compliant._with_elementwise(func)
+
     unique = not_implemented()
     contains = not_implemented()
     get = not_implemented()
     median = not_implemented()
-    sum = not_implemented()
