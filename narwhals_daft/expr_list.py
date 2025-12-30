@@ -41,6 +41,11 @@ class ExprListNamespace(ListNamespace["DaftExpr"]):
 
         return self.compliant._with_elementwise(func)
 
+    def sort(self, *, descending: bool, nulls_last: bool) -> DaftExpr:
+        return self.compliant._with_elementwise(
+            lambda expr: F.list_sort(expr, desc=descending, nulls_first=not nulls_last)
+        )
+
     unique = not_implemented()
     contains = not_implemented()
     get = not_implemented()
