@@ -59,13 +59,23 @@ class ExprDateTimeNamesSpace(DateTimeNamespace["DaftExpr"]):
     def to_string(self, format: str | None) -> DaftExpr:
         return self.compliant._with_elementwise(lambda expr: F.strftime(expr, format))
 
+    def total_minutes(self) -> DaftExpr:
+        return self.compliant._with_elementwise(lambda expr: F.total_minutes(expr))
+
+    def total_seconds(self) -> DaftExpr:
+        return self.compliant._with_elementwise(lambda expr: F.total_seconds(expr))
+
+    def total_milliseconds(self) -> DaftExpr:
+        return self.compliant._with_elementwise(lambda expr: F.total_milliseconds(expr))
+
+    def total_microseconds(self) -> DaftExpr:
+        return self.compliant._with_elementwise(lambda expr: F.total_microseconds(expr))
+
+    def total_nanoseconds(self) -> DaftExpr:
+        return self.compliant._with_elementwise(lambda expr: F.total_nanoseconds(expr))
+
     replace_time_zone = not_implemented()
     convert_time_zone = not_implemented()
     timestamp = not_implemented()
-    total_minutes = not_implemented()
-    total_seconds = not_implemented()
-    total_milliseconds = not_implemented()
-    total_microseconds = not_implemented()
-    total_nanoseconds = not_implemented()
     truncate = not_implemented()
     offset_by = not_implemented()
