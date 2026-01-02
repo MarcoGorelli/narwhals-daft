@@ -420,11 +420,9 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
         )
 
     def __pow__(self, other: DaftExpr) -> DaftExpr:
-        if other._metadata.is_literal:
-            other_lit = evaluate_literal(other)
-            return self._with_callable(lambda expr: (expr**other_lit))
-        msg = "`pow` with non-literal input is not yet supported"
-        raise NotImplementedError(msg)
+        return self._with_elementwise(
+            lambda _input, expr: F.pow(_input, expr), expr=other
+        )
 
     def __rpow__(self, other: DaftExpr) -> DaftExpr:
         if other._metadata.is_literal:
@@ -844,6 +842,14 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
 
         return self._with_callable(_unpartitioned_rank, _partitioned_rank)
 
+    def fill_nan(self, value: float | None) -> DaftExpr:
+        def func(expr: Expression) -> Expression:
+            if value is None:
+                return F.when(expr.is_nan(), lit(None)).otherwise(expr)
+            return expr.fill_nan(lit(value))
+
+        return self._with_callable(func)
+
     @property
     def name(self) -> ExprNameNamespace:
         return ExprNameNamespace(self)
@@ -861,7 +867,6 @@ class DaftExpr(CompliantExpr["DaftLazyFrame", "Expression"]):
         return ExprListNamespace(self)
 
     drop_nulls = not_implemented()
-    fill_nan = not_implemented()
     filter = not_implemented()
     ewm_mean = not_implemented()
     kurtosis = not_implemented()
